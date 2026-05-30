@@ -1,0 +1,5 @@
+https://www.perplexity.ai/search/b743dd29-f3cf-4a69-b8f1-a7b277c762ea
+icon
+https://www.flaticon.com/free-icon/inventory_11449740?term=stock&page=1&position=50&origin=search&related_id=11449740
+
+npm run dev

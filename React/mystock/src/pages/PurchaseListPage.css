@@ -1,0 +1,127 @@
+tr.row-unregistered {
+  background-color: rgba(220, 38, 38, 0.06);
+}
+
+tr.row-unregistered:hover {
+  background-color: rgba(220, 38, 38, 0.12);
+}
+
+tr.row-pending {
+  background-color: rgba(251, 113, 33, 0.08);
+}
+
+tr.row-pending:hover {
+  background-color: rgba(251, 113, 33, 0.15);
+}
+
+.badge-pending {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: rgba(251, 113, 33, 0.12);
+  color: #c2410c;
+  border: 1px solid rgba(251, 113, 33, 0.35);
+  letter-spacing: 0.03em;
+}
+
+.btn-pending-active {
+  background: rgba(251, 113, 33, 0.15);
+  color: #c2410c;
+  border: 1px solid rgba(251, 113, 33, 0.5);
+  font-weight: 600;
+}
+
+.btn-pending-active:hover {
+  background: rgba(251, 113, 33, 0.25);
+}
+
+.cell-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.cell-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.expand-icon {
+  cursor: pointer;
+  font-weight: bold;
+  padding-left: 10px;
+}
+
+.expand-icon:hover {
+  color: #007bff;
+}
+
+.cell-expandX {
+  margin-top: 6px;
+  padding-left: 10px;
+  border-left: 2px solid #eee;
+}
+.cell-expand {
+  background-color: #fffbea;
+  margin-top: 6px;
+  max-height: 200px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #f0d060;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(200, 160, 0, 0.12);
+}
+
+.expand-item {
+  font-size: 13px;
+  padding: 2px 0;
+  color: #555;
+}
+
+
+.inner-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 6px;
+  font-size: 13px;
+}
+
+.inner-table th,
+.inner-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid #eee;
+}
+
+.inner-table th {
+  text-align: left;
+  background: #f9f9f9;
+  font-weight: 600;
+}
+
+.inner-table tr:last-child td {
+  border-bottom: none;
+}
+
+
+.PurchaeFormHead th,
+.PurchaeFormHead td{
+  border: 0px solid #ccc;
+}
+.PurchaeFormHead input,
+.PurchaeFormHead select{
+  font-size: 16px;
+}
+.PurchaeFormData input,
+.PurchaeFormData select{
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 20px;
+}
+.css-b62m3t-container{
+  margin-bottom: -4px;
+  margin-top: -4px;
+}

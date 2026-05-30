@@ -1,0 +1,175 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|c:\\onedrive\\eugene\\mystock\\api\\mystockapi\\mystockapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|solutionrelative:mystockapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|c:\\onedrive\\eugene\\mystock\\api\\mystockapi\\mystockapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|solutionrelative:mystockapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|c:\\onedrive\\eugene\\mystock\\api\\mystockapi\\mystockapi\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|solutionrelative:mystockapi\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|c:\\onedrive\\eugene\\mystock\\api\\mystockapi\\mystockapi\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|solutionrelative:mystockapi\\controllers\\productscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|c:\\onedrive\\eugene\\mystock\\api\\mystockapi\\mystockapi\\controllers\\stockcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|solutionrelative:mystockapi\\controllers\\stockcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|c:\\onedrive\\eugene\\mystock\\api\\mystockapi\\mystockapi\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|solutionrelative:mystockapi\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|c:\\onedrive\\eugene\\mystock\\api\\mystockapi\\mystockapi\\controllers\\purchasecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|solutionrelative:mystockapi\\controllers\\purchasecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|c:\\onedrive\\eugene\\mystock\\api\\mystockapi\\mystockapi\\models\\purchase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|solutionrelative:mystockapi\\models\\purchase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|c:\\onedrive\\eugene\\mystock\\api\\mystockapi\\mystockapi\\controllers\\supplierscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|solutionrelative:mystockapi\\controllers\\supplierscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 5,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Product.cs",
+              "DocumentMoniker": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Models\\Product.cs",
+              "RelativeDocumentMoniker": "MyStockAPI\\Models\\Product.cs",
+              "ToolTip": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Models\\Product.cs",
+              "RelativeToolTip": "MyStockAPI\\Models\\Product.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAYAAAAoAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T08:33:19.737Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ProductsController.cs",
+              "DocumentMoniker": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Controllers\\ProductsController.cs",
+              "RelativeDocumentMoniker": "MyStockAPI\\Controllers\\ProductsController.cs",
+              "ToolTip": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Controllers\\ProductsController.cs",
+              "RelativeToolTip": "MyStockAPI\\Controllers\\ProductsController.cs",
+              "ViewState": "AgIAADwAAAAAAAAAAAAYwFcAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T08:30:37.181Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "UsersController.cs",
+              "DocumentMoniker": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Controllers\\UsersController.cs",
+              "RelativeDocumentMoniker": "MyStockAPI\\Controllers\\UsersController.cs",
+              "ToolTip": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Controllers\\UsersController.cs",
+              "RelativeToolTip": "MyStockAPI\\Controllers\\UsersController.cs",
+              "ViewState": "AgIAADYAAAAAAAAAAAAYwDAAAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-29T16:10:20.281Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Program.cs",
+              "RelativeDocumentMoniker": "MyStockAPI\\Program.cs",
+              "ToolTip": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Program.cs",
+              "RelativeToolTip": "MyStockAPI\\Program.cs",
+              "ViewState": "AgIAADoAAAAAAAAAAAAowEsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T08:31:20.674Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\appsettings.json",
+              "RelativeDocumentMoniker": "MyStockAPI\\appsettings.json",
+              "ToolTip": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\appsettings.json",
+              "RelativeToolTip": "MyStockAPI\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-05-30T10:54:35.954Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "PurchaseController.cs",
+              "DocumentMoniker": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Controllers\\PurchaseController.cs",
+              "RelativeDocumentMoniker": "MyStockAPI\\Controllers\\PurchaseController.cs",
+              "ToolTip": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Controllers\\PurchaseController.cs",
+              "RelativeToolTip": "MyStockAPI\\Controllers\\PurchaseController.cs",
+              "ViewState": "AgIAAKcAAAAAAAAAAAAgwAgAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-01T08:55:42.747Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "SuppliersController.cs",
+              "DocumentMoniker": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Controllers\\SuppliersController.cs",
+              "RelativeDocumentMoniker": "MyStockAPI\\Controllers\\SuppliersController.cs",
+              "ToolTip": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Controllers\\SuppliersController.cs",
+              "RelativeToolTip": "MyStockAPI\\Controllers\\SuppliersController.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAYwCMAAAAgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-02T08:07:20.357Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Purchase.cs",
+              "DocumentMoniker": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Models\\Purchase.cs",
+              "RelativeDocumentMoniker": "MyStockAPI\\Models\\Purchase.cs",
+              "ToolTip": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Models\\Purchase.cs",
+              "RelativeToolTip": "MyStockAPI\\Models\\Purchase.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwBIAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-02T13:27:13.758Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "StockController.cs",
+              "DocumentMoniker": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Controllers\\StockController.cs",
+              "RelativeDocumentMoniker": "MyStockAPI\\Controllers\\StockController.cs",
+              "ToolTip": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Controllers\\StockController.cs",
+              "RelativeToolTip": "MyStockAPI\\Controllers\\StockController.cs",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAowEoAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-30T09:32:34.518Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

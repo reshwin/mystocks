@@ -1,0 +1,25 @@
+stock-maintenance-react/
+├── package.json
+├── vite.config.js
+├── index.html
+├── src/
+│   ├── main.jsx
+│   ├── App.jsx
+│   ├── styles.css
+│   ├── layout/
+│   │   └── AppLayout.jsx
+│   ├── components/
+│   │   ├── Sidebar.jsx
+│   │   ├── HeaderBar.jsx
+│   │   ├── PageIntro.jsx
+│   │   ├── DataTable.jsx
+│   │   └── PurchaseForm.jsx
+│   ├── pages/
+│   │   ├── SuppliersPage.jsx
+│   │   ├── ProductsPage.jsx
+│   │   ├── PurchaseListPage.jsx
+│   │   └── PurchaseFormPage.jsx
+│   ├── services/
+│   │   └── api.js
+│   └── data/
+│       └── mockData.js

@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\OneDrive\\\\Eugene\\\\MyStock\\\\API\\\\MyStockAPI\\\\MyStockAPI\\\\Controllers\" -Filter \"*.cs\")",
+      "Bash(Select-Object Name)",
+      "Bash(Get-ChildItem -Path \"C:\\\\OneDrive\\\\Eugene\\\\MyStock\\\\API\\\\MyStockAPI\" -Recurse -Force)",
+      "Bash(Select-Object -Property FullName, PSIsContainer)",
+      "Bash(Sort-Object FullName)",
+      "Bash(grep -E \"\\\\.\\(cs|json|csproj|http\\)$\")",
+      "Bash(dotnet add *)",
+      "Bash(dotnet build *)",
+      "Bash(New-Item *)",
+      "PowerShell(New-Item *)"
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+# ============================================================
+#  React + C# API — .gitignore
+# ============================================================
+
+# ── Node / React ────────────────────────────────────────────
+node_modules/
+dist/
+build/
+.vite/
+.next/
+.cache/
+*.local
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Package manager locks (keep only one — delete the others)
+# yarn.lock
+# pnpm-lock.yaml
+
+# ── C# / .NET ───────────────────────────────────────────────
+bin/
+obj/
+out/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+
+# Publish output
+publish/
+**/publish/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Rider / JetBrains
+.idea/
+*.DotSettings.user
+
+# MSTest / xUnit results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# Secrets & config overrides
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+**/secrets.json
+
+# ── Database ─────────────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+*.mdf
+*.ldf
+
+# Migrations snapshot (optional — remove if you want to track)
+# **/Migrations/
+
+# ── OS ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDEs ─────────────────────────────────────────────────────
+.vscode/
+*.swp
+*.swo
+
+# ── Misc ─────────────────────────────────────────────────────
+*.log
+*.bak
+*.tmp
