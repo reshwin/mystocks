@@ -279,8 +279,8 @@ tbody tr:hover {
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4);
-  padding: var(--space-5);
+  gap: var(--space-2);
+  padding: var(--space-3);
 }
 
 .field {
@@ -295,8 +295,8 @@ tbody tr:hover {
 .field input,
 .field select,
 .field textarea {
-  min-height: 44px;
-  padding: 0.8rem 0.9rem;
+  min-height: 36px;
+  padding: 0.45rem 0.75rem;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   background: var(--color-surface-2);
@@ -304,7 +304,7 @@ tbody tr:hover {
 }
 
 .field textarea {
-  min-height: 96px;
+  min-height: 72px;
   resize: vertical;
 }
 

@@ -10,9 +10,11 @@ const makeFormData = (init) => ({
   m_description:   init?.m_description   ?? '',
 });
 
-export default function ProductForm({ initialValues, onSubmit, mode }) {
+export default function ProductForm({ initialValues, onSubmit, mode, role = 'admin' }) {
   const [formData, setFormData]     = useState(makeFormData(initialValues));
+  const [initData]                  = useState(makeFormData(initialValues)); // snapshot — never changes
   const [selectedType, setSelectedType] = useState(initialValues?.m_type ?? '');
+  const initType                    = initialValues?.m_type ?? '';
   const [allItems, setAllItems]     = useState([]);  // [{id, type, typeSub}] — full list
 
   // Single fetch on mount — drives both dropdowns
@@ -64,15 +66,29 @@ export default function ProductForm({ initialValues, onSubmit, mode }) {
 
   const subTypeValue = formData.m_id_type != null ? String(formData.m_id_type) : '';
 
+  // admin: edit anything; manager: edit only empty fields; others: read-only
+  const isReadOnly = (value) => {
+    if (mode !== 'edit') return false;
+    if (role === 'admin') return false;
+    if (role === 'manager') return value !== null && value !== '' && value !== undefined;
+    return true;
+  };
+  const readOnly = mode === 'edit' && role !== 'admin' && role !== 'manager';
+
+  // uses initData so readOnly state is fixed at load time, not re-evaluated on each keystroke
+  const fieldBg = (initValue) => isReadOnly(initValue)
+    ? { background: 'transparent', color: '#000', fontWeight: 700 }
+    : { background: '#fff' };
+
   // Label for an option: show typeSub if present, otherwise show type
   const optionLabel = (st) => st.typeSub ?? st.type;
 
   return (
-    <form className="card form-card" onSubmit={handleSubmit}>
+    <form className="card form-card" onSubmit={handleSubmit} style={mode === 'edit' ? { background: '#f0f0f0' } : undefined}>
       <div className="card-header">
         <div>
           <h3>{mode === 'edit' ? 'Update Component' : 'New Component'}</h3>
-          <p>Fill in the product details below.</p>
+          <p>{readOnly ? 'View only — admin access required to edit.' : 'Fill in the product details below.'}</p>
         </div>
       </div>
 
@@ -85,6 +101,8 @@ export default function ProductForm({ initialValues, onSubmit, mode }) {
             value={formData.m_name}
             onChange={handleChange}
             placeholder="e.g. STM32G071RBT6"
+            readOnly={isReadOnly(initData.m_name)}
+            style={fieldBg(initData.m_name)}
             required
           />
         </div>
@@ -92,7 +110,7 @@ export default function ProductForm({ initialValues, onSubmit, mode }) {
         {/* Type — first dropdown */}
         <div className="field">
           <label htmlFor="type_select">Type</label>
-          <select id="type_select" value={selectedType} onChange={handleTypeChange}>
+          <select id="type_select" value={selectedType} onChange={handleTypeChange} disabled={isReadOnly(initType)} style={fieldBg(initType)}>
             <option value="">— Select type —</option>
             {types.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
@@ -105,7 +123,8 @@ export default function ProductForm({ initialValues, onSubmit, mode }) {
             id="subtype_select"
             value={subTypeValue}
             onChange={handleSubTypeChange}
-            disabled={!selectedType || subtypes.length === 0}
+            disabled={isReadOnly(initData.m_id_type) || !selectedType || subtypes.length === 0}
+            style={fieldBg(initData.m_id_type)}
           >
             <option value="">— Select sub-type —</option>
             {subtypes.map(st => (
@@ -123,6 +142,8 @@ export default function ProductForm({ initialValues, onSubmit, mode }) {
             value={formData.m_pins}
             onChange={handleChange}
             placeholder="e.g. 64"
+            readOnly={isReadOnly(initData.m_pins)}
+            style={fieldBg(initData.m_pins)}
           />
         </div>
 
@@ -133,6 +154,8 @@ export default function ProductForm({ initialValues, onSubmit, mode }) {
             value={formData.m_rack_location}
             onChange={handleChange}
             placeholder="e.g. A1-R3"
+            readOnly={isReadOnly(initData.m_rack_location)}
+            style={fieldBg(initData.m_rack_location)}
           />
         </div>
 
@@ -143,6 +166,8 @@ export default function ProductForm({ initialValues, onSubmit, mode }) {
             value={formData.m_link}
             onChange={handleChange}
             placeholder="https://…"
+            readOnly={isReadOnly(initData.m_link)}
+            style={fieldBg(initData.m_link)}
           />
         </div>
 
@@ -153,16 +178,20 @@ export default function ProductForm({ initialValues, onSubmit, mode }) {
             value={formData.m_description}
             onChange={handleChange}
             placeholder="Short description of the component"
+            readOnly={isReadOnly(initData.m_description)}
+            style={fieldBg(initData.m_description)}
           />
         </div>
 
       </div>
 
-      <div className="form-footer">
-        <button className="btn btn-primary" type="submit">
-          {mode === 'edit' ? 'Update Component' : 'Save Component'}
-        </button>
-      </div>
+      {!readOnly && (
+        <div className="form-footer">
+          <button className="btn btn-primary" type="submit">
+            {mode === 'edit' ? 'Update Component' : 'Save Component'}
+          </button>
+        </div>
+      )}
     </form>
   );
 }

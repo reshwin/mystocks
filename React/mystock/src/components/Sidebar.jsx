@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 
 const navItems = [
   { label: 'Suppliers',  path: '/suppliers' },
-  { label: 'Components', path: '/products' },
+  { label: 'Components', path: '/components' },
   { label: 'Purchase',   path: '/purchase' },
   { label: 'Stock',      path: '/stock', divider: true },
 ];
@@ -39,6 +39,11 @@ export default function Sidebar({ isOpen, onClose, theme, onThemeToggle, user, o
           }}>
             <div style={{ fontWeight: 600, marginBottom: '2px' }}>{user.name || 'User'}</div>
             <div style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>{user.email}</div>
+            {user.role && (
+              <span style={{ display: 'inline-block', marginTop: '5px', padding: '1px 8px', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 700, textTransform: 'capitalize', background: 'var(--color-primary-soft)', color: 'var(--color-primary)', border: '1px solid var(--color-primary)' }}>
+                {user.role}
+              </span>
+            )}
           </div>
         )}
 

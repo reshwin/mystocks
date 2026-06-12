@@ -20,9 +20,9 @@ export default function App() {
         <Route path="suppliers" element={<SuppliersPage />} />
         <Route path="suppliers/new" element={<SupplierFormPage mode="create" />} />
         <Route path="suppliers/edit/:m_id" element={<SupplierFormPage mode="edit" />} />
-        <Route path="products" element={<ProductsPage />} />
-        <Route path="products/new" element={<ProductFormPage mode="create" />} />
-        <Route path="products/edit/:m_id" element={<ProductFormPage mode="edit" />} />
+        <Route path="components" element={<ProductsPage />} />
+        <Route path="components/new" element={<ProductFormPage mode="create" />} />
+        <Route path="components/edit/:m_id" element={<ProductFormPage mode="edit" />} />
         <Route path="purchase" element={<PurchaseListPage />} />
         <Route path="purchase/new" element={<PurchaseFormPage mode="create" />} />
         <Route path="purchase/edit/:m_id" element={<PurchaseFormPage mode="edit" />} />

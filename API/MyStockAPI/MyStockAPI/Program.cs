@@ -64,6 +64,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddSingleton<DbHelper>();
+builder.Services.AddSingleton<MyStockAPI.Helpers.ActivityLogger>();
 
 var app = builder.Build();
 

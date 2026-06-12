@@ -3,10 +3,13 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import PageIntro from '../components/PageIntro';
 import ProductForm from '../components/ProductForm';
 import { createProduct, updateProduct, getProductById } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProductFormPage({ mode }) {
   const navigate = useNavigate();
   const { m_id } = useParams();
+  const { user } = useAuth();
+  const role = user?.role ?? '';
   const [initialValues, setInitialValues] = useState(null);
   const [loadError, setLoadError] = useState(null);
 
@@ -24,7 +27,7 @@ export default function ProductFormPage({ mode }) {
     } else {
       await createProduct(payload);
     }
-    navigate('/products');
+    navigate('/components');
   };
 
   if (mode === 'edit' && !initialValues && !loadError) {
@@ -47,9 +50,9 @@ export default function ProductFormPage({ mode }) {
     <div className="page-stack">
       <PageIntro
         title={mode === 'edit' ? 'Edit Component' : 'New Component'}
-        action={<Link to="/products" className="btn btn-secondary">← Back to Components</Link>}
+        action={<Link to="/components" className="btn btn-secondary">← Back to Components</Link>}
       />
-      <ProductForm mode={mode} initialValues={initialValues ?? {}} onSubmit={handleSubmit} />
+      <ProductForm mode={mode} initialValues={initialValues ?? {}} onSubmit={handleSubmit} role={role} />
     </div>
   );
 }

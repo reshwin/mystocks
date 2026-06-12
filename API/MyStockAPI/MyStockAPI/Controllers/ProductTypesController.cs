@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using MyStockAPI.Helpers;
 using MyStockAPI.Models;
 
 namespace MyStockAPI.Controllers
@@ -9,10 +10,12 @@ namespace MyStockAPI.Controllers
     public class ProductTypesController : ControllerBase
     {
         private readonly DbHelper _db;
+        private readonly ActivityLogger _activity;
 
-        public ProductTypesController(DbHelper db)
+        public ProductTypesController(DbHelper db, ActivityLogger activity)
         {
             _db = db;
+            _activity = activity;
         }
 
         // All rows — used for admin/management of the lookup table
@@ -146,6 +149,7 @@ namespace MyStockAPI.Controllers
 
                 await cmd.ExecuteNonQueryAsync();
 
+                await _activity.LogAsync(User, "type_create", $"Created type '{request.m_type}/{request.m_type_sub}'");
                 return Ok(new { success = true, message = "Type created successfully" });
             }
             catch (Exception ex)
@@ -176,6 +180,7 @@ namespace MyStockAPI.Controllers
                 if (rows == 0)
                     return NotFound();
 
+                await _activity.LogAsync(User, "type_update", $"Updated type #{id} '{request.m_type}/{request.m_type_sub}'");
                 return Ok(new { success = true, message = "Type updated successfully" });
             }
             catch (Exception ex)
@@ -200,6 +205,7 @@ namespace MyStockAPI.Controllers
                 if (rows == 0)
                     return NotFound();
 
+                await _activity.LogAsync(User, "type_delete", $"Deleted product type #{id}");
                 return Ok(new { success = true, message = "Type deleted successfully" });
             }
             catch (Exception ex)

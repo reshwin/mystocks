@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using MyStockAPI.Helpers;
 using MyStockAPI.Models;
 
 namespace MyStockAPI.Controllers
@@ -9,10 +10,12 @@ namespace MyStockAPI.Controllers
     public class SuppliersController : ControllerBase
     {
         private readonly DbHelper _db;
+        private readonly ActivityLogger _activity;
 
-        public SuppliersController(DbHelper db)
+        public SuppliersController(DbHelper db, ActivityLogger activity)
         {
             _db = db;
+            _activity = activity;
         }
 
         [HttpGet("items")]
@@ -104,6 +107,7 @@ namespace MyStockAPI.Controllers
 
                 await cmd.ExecuteNonQueryAsync();
 
+                await _activity.LogAsync(User, "supplier_create", $"Created supplier '{request.m_name}'");
                 return Ok(new { success = true, message = "Supplier created successfully" });
             }
             catch (Exception ex)
@@ -133,6 +137,7 @@ namespace MyStockAPI.Controllers
                 if (rows == 0)
                     return NotFound();
 
+                await _activity.LogAsync(User, "supplier_update", $"Updated supplier #{id} '{request.m_name}'");
                 return Ok(new { success = true, message = "Supplier updated successfully" });
             }
             catch (Exception ex)
@@ -157,6 +162,7 @@ namespace MyStockAPI.Controllers
                 if (rows == 0)
                     return NotFound();
 
+                await _activity.LogAsync(User, "supplier_delete", $"Deleted supplier #{id}");
                 return Ok(new { success = true, message = "Supplier deleted successfully" });
             }
             catch (Exception ex)

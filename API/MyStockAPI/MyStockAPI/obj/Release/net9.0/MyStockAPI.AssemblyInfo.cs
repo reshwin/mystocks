@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MyStockAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+543344de0561449ff301c448e64130c0c7e6ca9a")]
 [assembly: System.Reflection.AssemblyProductAttribute("MyStockAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MyStockAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

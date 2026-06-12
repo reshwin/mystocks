@@ -1,6 +1,7 @@
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using MyStockAPI.DTOs.Stock;
+using MyStockAPI.Helpers;
 
 namespace MyStockAPI.Controllers
 {
@@ -9,10 +10,12 @@ namespace MyStockAPI.Controllers
     public class StockController : ControllerBase
     {
         private readonly DbHelper _db;
+        private readonly ActivityLogger _activity;
 
-        public StockController(DbHelper db)
+        public StockController(DbHelper db, ActivityLogger activity)
         {
             _db = db;
+            _activity = activity;
         }
 
         // GET /api/stock/movements?page=1&pageSize=20
@@ -74,6 +77,9 @@ namespace MyStockAPI.Controllers
             {
                 using var conn = _db.GetConnection();
                 var newId = await conn.ExecuteScalarAsync<int>(sql, req);
+
+                await _activity.LogAsync(User, "stock_movement_create",
+                    $"{req.M_direction} {req.M_qty} of product #{req.M_product_id} ({req.M_type})");
                 return StatusCode(201, new { id = newId });
             }
             catch (Exception ex)

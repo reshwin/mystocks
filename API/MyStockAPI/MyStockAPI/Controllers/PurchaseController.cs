@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using MyStockAPI.Helpers;
 using MyStockAPI.Models;
 
 namespace MyStockAPI.Controllers
@@ -9,10 +10,12 @@ namespace MyStockAPI.Controllers
     public class PurchaseController : ControllerBase
     {
         private readonly DbHelper _db;
+        private readonly ActivityLogger _activity;
 
-        public PurchaseController(DbHelper db)
+        public PurchaseController(DbHelper db, ActivityLogger activity)
         {
             _db = db;
+            _activity = activity;
         }
 
         [HttpGet]
@@ -212,6 +215,8 @@ namespace MyStockAPI.Controllers
 
                 await tran.CommitAsync();
 
+                await _activity.LogAsync(User, "purchase_create",
+                    $"Order '{request.m_order_no}' supplier #{request.m_id_supplier} ({request.items.Count} items)");
                 return Ok(new { success = true, message = "Purchase saved successfully" });
             }
             catch (Exception ex)
@@ -314,6 +319,7 @@ namespace MyStockAPI.Controllers
                 if (rows == 0)
                     return NotFound();
 
+                await _activity.LogAsync(User, "purchase_delete", $"Deleted purchase row #{id}");
                 return Ok(new { success = true, message = "Purchase record deleted successfully" });
             }
             catch (Exception ex)

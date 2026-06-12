@@ -61,3 +61,4 @@ C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Release\net9.0\refint\M
 C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Release\net9.0\MyStockAPI.pdb
 C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Release\net9.0\MyStockAPI.genruntimeconfig.cache
 C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Release\net9.0\ref\MyStockAPI.dll
+C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Release\net9.0\MyStockAPI.sourcelink.json

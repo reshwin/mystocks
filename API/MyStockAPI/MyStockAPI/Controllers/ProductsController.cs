@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using MyStockAPI.Helpers;
 using MyStockAPI.Models;
 
 namespace MyStockAPI.Controllers
@@ -9,10 +10,12 @@ namespace MyStockAPI.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly DbHelper _db;
+        private readonly ActivityLogger _activity;
 
-        public ProductsController(DbHelper db)
+        public ProductsController(DbHelper db, ActivityLogger activity)
         {
             _db = db;
+            _activity = activity;
         }
 
         [HttpGet("items")]
@@ -164,6 +167,7 @@ namespace MyStockAPI.Controllers
 
                 await cmd.ExecuteNonQueryAsync();
 
+                await _activity.LogAsync(User, "product_create", $"Created product '{request.m_name}'");
                 return Ok(new { success = true, message = "Product created successfully" });
             }
             catch (Exception ex)
@@ -202,7 +206,38 @@ namespace MyStockAPI.Controllers
                 if (rows == 0)
                     return NotFound();
 
+                await _activity.LogAsync(User, "product_update", $"Updated product #{id} '{request.m_name}'");
                 return Ok(new { success = true, message = "Product updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPatch("{id}/rack")]
+        public async Task<IActionResult> UpdateRackLocation(int id, [FromBody] RackLocationRequest request)
+        {
+            if (request == null)
+                return BadRequest("Request body is required");
+
+            try
+            {
+                using var conn = _db.GetConnection();
+                await conn.OpenAsync();
+
+                var cmd = new MySqlCommand(
+                    "UPDATE tbl_products SET m_rack_location = @rack_location WHERE m_id = @id",
+                    conn);
+                cmd.Parameters.AddWithValue("@rack_location", (object?)request.RackLocation ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@id", id);
+
+                var rows = await cmd.ExecuteNonQueryAsync();
+                if (rows == 0)
+                    return NotFound();
+
+                await _activity.LogAsync(User, "product_rack_update", $"Product #{id} rack set to '{request.RackLocation}'");
+                return Ok(new { success = true, message = "Rack location updated successfully" });
             }
             catch (Exception ex)
             {
@@ -226,6 +261,7 @@ namespace MyStockAPI.Controllers
                 if (rows == 0)
                     return NotFound();
 
+                await _activity.LogAsync(User, "product_delete", $"Deleted product #{id}");
                 return Ok(new { success = true, message = "Product deleted successfully" });
             }
             catch (Exception ex)

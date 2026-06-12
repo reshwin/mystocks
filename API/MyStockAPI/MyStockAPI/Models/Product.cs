@@ -25,4 +25,9 @@ namespace MyStockAPI.Models
         public string? m_link { get; set; }
         public string? m_description { get; set; }
     }
+
+    public class RackLocationRequest
+    {
+        public string? RackLocation { get; set; }
+    }
 }

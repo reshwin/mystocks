@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MySql.Data.MySqlClient;
+using MyStockAPI.Helpers;
 using MyStockAPI.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -14,11 +15,13 @@ namespace MyStockAPI.Controllers
     {
         private readonly DbHelper _db;
         private readonly IConfiguration _configuration;
+        private readonly ActivityLogger _activity;
 
-        public AuthController(DbHelper db, IConfiguration configuration)
+        public AuthController(DbHelper db, IConfiguration configuration, ActivityLogger activity)
         {
             _db = db;
             _configuration = configuration;
+            _activity = activity;
         }
 
         [HttpPost("login")]
@@ -75,7 +78,10 @@ namespace MyStockAPI.Controllers
             }
 
             if (user == null || passwordHash == null || !BCrypt.Net.BCrypt.Verify(request.Password, passwordHash))
+            {
+                await _activity.LogAsync(request.Email?.Trim(), "login_failed", "Invalid email or password");
                 return Unauthorized(new { message = "Invalid email or password." });
+            }
 
             using (var conn = _db.GetConnection())
             {
@@ -88,8 +94,17 @@ namespace MyStockAPI.Controllers
                 user.LastLoginAt = DateTime.UtcNow;
             }
 
+            await _activity.LogAsync(user.Email, "login_success", $"User {user.Name} logged in");
+
             var token = GenerateJwtToken(user);
             return Ok(new LoginResponse { Token = token, User = user });
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _activity.LogAsync(User, "logout", "User logged out");
+            return Ok(new { success = true });
         }
 
         private string GenerateJwtToken(User user)

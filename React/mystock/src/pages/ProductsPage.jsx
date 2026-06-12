@@ -1,18 +1,28 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import PageIntro from '../components/PageIntro';
 import ActionButtons from '../components/ActionButtons';
-import { getProducts, deleteProduct } from '../services/api';
+import { getProducts, deleteProduct, getStockMovements, patchRackLocation } from '../services/api';
 
 const PAGE_SIZE = 15;
 
 export default function ProductsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const canEditRack = user?.role === 'admin' || user?.role === 'manager';
   const [allRows, setAllRows] = useState([]);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  const [stockModal, setStockModal] = useState(null);
+  const [movements, setMovements] = useState([]);
+  const [movLoading, setMovLoading] = useState(false);
+
+  const [rackEdit, setRackEdit] = useState(null);   // { row, value }
+  const [rackSaving, setRackSaving] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -54,12 +64,45 @@ export default function ProductsPage() {
     }
   };
 
+  const openStockModal = (row) => {
+    setStockModal(row);
+    setMovements([]);
+    setMovLoading(true);
+    getStockMovements({ pageSize: 9999, productId: row.m_id })
+      .then(res => setMovements(res.data ?? []))
+      .catch(console.error)
+      .finally(() => setMovLoading(false));
+  };
+
+  const saveRack = async () => {
+    if (!rackEdit) return;
+    setRackSaving(true);
+    try {
+      await patchRackLocation(rackEdit.row.m_id, rackEdit.value);
+      setAllRows(prev => prev.map(r =>
+        r.m_id === rackEdit.row.m_id ? { ...r, m_rack_location: rackEdit.value } : r
+      ));
+      setRackEdit(null);
+    } catch (e) {
+      alert('Save failed: ' + e.message);
+    } finally {
+      setRackSaving(false);
+    }
+  };
+
+  const fmtDate = (val) => {
+    if (!val) return '';
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return val;
+    return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`;
+  };
+
   return (
     <div className="page-stack">
       <PageIntro
         title="Components"
         action={
-          <button className="btn btn-primary" onClick={() => navigate('/products/new')}>
+          <button className="btn btn-primary" onClick={() => navigate('/components/new')}>
             + New Component
           </button>
         }
@@ -92,7 +135,7 @@ export default function ProductsPage() {
             <div className="search-box">
               <input
                 type="text"
-                placeholder="Search products…"
+                placeholder="Search components…"
                 value={search}
                 onChange={e => { setSearch(e.target.value); setPage(1); }}
               />
@@ -133,7 +176,7 @@ export default function ProductsPage() {
               ) : pageData.length === 0 ? (
                 <tr>
                   <td colSpan="9" style={{ textAlign: "center", padding: "2rem", color: "var(--color-text-muted)" }}>
-                    No products found.
+                    No components found.
                   </td>
                 </tr>
               ) : pageData.map(row => (
@@ -146,15 +189,20 @@ export default function ProductsPage() {
                     </span>
                   </td>
                   <td
-                    style={{ textAlign: "center", fontVariantNumeric: "tabular-nums", fontWeight: row.stockPurchased > 0 ? 600 : undefined, color: row.stockPurchased > 0 ? "var(--color-primary)" : "var(--color-text-muted)", cursor: row.stockPurchased != null ? "default" : undefined }}
-                    title={row.stockPurchased != null ? `Purchased: ${row.stockPurchased ?? '—'}  |  In: ${row.stockIn ?? '—'}  |  Out: ${row.stockOut ?? '—'}` : undefined}
+                    style={{ textAlign: "center", fontVariantNumeric: "tabular-nums", fontWeight: row.stockPurchased > 0 ? 600 : undefined, color: row.stockPurchased > 0 ? "var(--color-primary)" : "var(--color-text-muted)", cursor: "pointer", textDecoration: row.stockPurchased != null ? "underline dotted" : undefined }}
+                    title={row.stockPurchased != null ? `Purchased: ${row.stockPurchased ?? '—'}  |  In: ${row.stockIn ?? '—'}  |  Out: ${row.stockOut ?? '—'}\nClick to view transactions` : 'Click to view transactions'}
+                    onClick={() => openStockModal(row)}
                   >
                     {row.stockPurchased != null ? (row.stockPurchased + (row.stockIn ?? 0) - (row.stockOut ?? 0)) : '—'}
                   </td>
                   <td style={{ textAlign: "center" }}>{row.m_pins}</td>
-                  <td>
-                    <code style={{ fontSize: "0.82rem", background: "var(--color-surface-2)", padding: "1px 5px", borderRadius: "4px" }}>
-                      {row.m_rack_location}
+                  <td
+                    style={{ cursor: canEditRack ? "pointer" : "default" }}
+                    title={canEditRack ? "Double-click to edit rack location" : undefined}
+                    onDoubleClick={canEditRack ? () => setRackEdit({ row, value: row.m_rack_location ?? '' }) : undefined}
+                  >
+                    <code style={{ fontSize: "0.82rem", background: "var(--color-surface-2)", padding: "1px 5px", borderRadius: "4px", fontWeight: 700 }}>
+                      {row.m_rack_location || <span style={{ color: 'var(--color-text-muted)' }}>—</span>}
                     </code>
                   </td>
                   <td
@@ -175,7 +223,7 @@ export default function ProductsPage() {
                   </td>
                   <td>
                     <ActionButtons
-                      onEdit={() => navigate(`/products/edit/${row.m_id}`)}
+                      onEdit={() => navigate(`/components/edit/${row.m_id}`)}
                       onDelete={() => handleDelete(row.m_id, row.m_name)}
                       deleteDisabled
                     />
@@ -194,6 +242,111 @@ export default function ProductsPage() {
           </div>
         )}
       </section>
+
+      {/* Rack location edit popup */}
+      {rackEdit && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          onClick={() => setRackEdit(null)}
+        >
+          <div
+            style={{ background: 'var(--color-surface)', borderRadius: 10, padding: '24px', width: 320, boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            <p style={{ margin: '0 0 4px', fontWeight: 600, fontSize: '0.95rem' }}>Rack Location</p>
+            <p style={{ margin: '0 0 14px', fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>{rackEdit.row.m_name}</p>
+            <input
+              autoFocus
+              type="text"
+              value={rackEdit.value}
+              onChange={e => setRackEdit(prev => ({ ...prev, value: e.target.value }))}
+              onKeyDown={e => { if (e.key === 'Enter') saveRack(); if (e.key === 'Escape') setRackEdit(null); }}
+              placeholder="e.g. A1-R3"
+              style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid var(--color-border)', fontSize: '0.95rem', boxSizing: 'border-box', marginBottom: 14 }}
+            />
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+              <button className="btn btn-secondary" onClick={() => setRackEdit(null)}>Cancel</button>
+              <button className="btn btn-primary" onClick={saveRack} disabled={rackSaving}>
+                {rackSaving ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Stock transaction modal */}
+      {stockModal && (
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          onClick={() => setStockModal(null)}
+        >
+          <div
+            style={{ background: 'var(--color-surface)', borderRadius: 10, width: '680px', maxWidth: '95vw', maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <strong style={{ fontSize: '1rem' }}>{stockModal.m_name}</strong>
+                <span style={{ marginLeft: 12, fontSize: '0.82rem', color: 'var(--color-text-muted)' }}>
+                  Purchased: {stockModal.stockPurchased ?? 0} &nbsp;|&nbsp; In: {stockModal.stockIn ?? 0} &nbsp;|&nbsp; Out: {stockModal.stockOut ?? 0} &nbsp;|&nbsp;
+                  <strong style={{ color: 'var(--color-primary)' }}>Balance: {(stockModal.stockPurchased ?? 0) + (stockModal.stockIn ?? 0) - (stockModal.stockOut ?? 0)}</strong>
+                </span>
+              </div>
+              <button onClick={() => setStockModal(null)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: 'var(--color-text-muted)', lineHeight: 1 }}>×</button>
+            </div>
+
+            {/* Body */}
+            <div style={{ overflowY: 'auto', flex: 1 }}>
+              {movLoading ? (
+                <p style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>Loading…</p>
+              ) : movements.length === 0 ? (
+                <p style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No movements recorded.</p>
+              ) : (
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                  <thead>
+                    <tr style={{ background: 'var(--color-surface-2)', position: 'sticky', top: 0 }}>
+                      <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600 }}>Date</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600 }}>Type</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 600 }}>Dir</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 600 }}>Qty</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 600 }}>Balance</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600 }}>Project</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600 }}>Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(() => {
+                      let balance = stockModal.stockPurchased ?? 0;
+                      return movements.map((m, i) => {
+                        const qty = Number(m.m_qty ?? 0);
+                        balance += m.m_direction === 'in' ? qty : -qty;
+                        return (
+                          <tr key={m.m_id ?? i} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                            <td style={{ padding: '7px 12px', whiteSpace: 'nowrap' }}>{fmtDate(m.m_date)}</td>
+                            <td style={{ padding: '7px 12px' }}>
+                              <span className="badge" style={{ textTransform: 'capitalize' }}>{m.m_type}</span>
+                            </td>
+                            <td style={{ padding: '7px 12px', textAlign: 'center', fontWeight: 700, color: m.m_direction === 'in' ? '#16a34a' : '#dc2626' }}>
+                              {m.m_direction === 'in' ? '↑' : '↓'}
+                            </td>
+                            <td style={{ padding: '7px 12px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: m.m_direction === 'in' ? '#16a34a' : '#dc2626', fontWeight: 600 }}>
+                              {m.m_direction === 'in' ? '+' : '−'}{qty}
+                            </td>
+                            <td style={{ padding: '7px 12px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{balance}</td>
+                            <td style={{ padding: '7px 12px', color: 'var(--color-text-muted)' }}>{m.m_project}</td>
+                            <td style={{ padding: '7px 12px', color: 'var(--color-text-muted)' }}>{m.m_notes}</td>
+                          </tr>
+                        );
+                      });
+                    })()}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

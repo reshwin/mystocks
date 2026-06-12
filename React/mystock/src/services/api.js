@@ -116,6 +116,11 @@ export async function deleteProduct(id) {
   if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
 }
 
+export async function patchRackLocation(id, rackLocation) {
+  const res = await axios.patch(`${BASE}/api/products/${id}/rack`, { rackLocation });
+  return res.data;
+}
+
 // ── Purchases ──────────────────────────────────────────────────────────────
 
 export async function getComponents() {
