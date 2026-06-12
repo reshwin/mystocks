@@ -40,20 +40,26 @@ namespace MyStockAPI.Controllers
                         p.m_order_no,
                         p.m_id_supplier
                     FROM tbl_purchase p
-                    JOIN tbl_suppliers s ON p.m_id_supplier = s.m_id
+                    LEFT JOIN tbl_suppliers s ON p.m_id_supplier = s.m_id
                     JOIN (
                         SELECT m_id_supplier, m_order_no, COUNT(*) AS item_count
                         FROM tbl_purchase
                         GROUP BY m_id_supplier, m_order_no
-                    ) cnt ON cnt.m_id_supplier = p.m_id_supplier
-                         AND cnt.m_order_no    = p.m_order_no";
+                    ) cnt ON cnt.m_id_supplier <=> p.m_id_supplier
+                         AND cnt.m_order_no    <=> p.m_order_no";
 
                 if (!string.IsNullOrEmpty(search))
                 {
                     query += @"
+                    LEFT JOIN tbl_products      pr ON p.m_item     = pr.m_name
+                    LEFT JOIN tbl_product_types pt ON pr.m_id_type = pt.m_id
                     WHERE
                         s.m_name LIKE @search OR
                         p.m_item LIKE @search OR
+                        pr.m_name LIKE @search OR
+                        pt.m_type LIKE @search OR
+                        pt.m_type_sub LIKE @search OR
+                        p.m_description LIKE @search OR
                         CAST(p.m_order_no AS CHAR) LIKE @search";
                 }
 
@@ -67,29 +73,30 @@ namespace MyStockAPI.Controllers
                     cmd.Parameters.AddWithValue("@search", $"%{search}%");
                 cmd.Parameters.AddWithValue("@offset", offset);
                 cmd.Parameters.AddWithValue("@pageSize", pageSize);
-
+                //Console.WriteLine(query);
+                System.Diagnostics.Debug.WriteLine(query);
                 using (var reader = await cmd.ExecuteReaderAsync())
                 {
-                    var colId           = reader.GetOrdinal("m_id");
-                    var colOrderNo      = reader.GetOrdinal("m_order_no");
-                    var colProductName  = reader.GetOrdinal("product_name");
+                    var colId = reader.GetOrdinal("m_id");
+                    var colOrderNo = reader.GetOrdinal("m_order_no");
+                    var colProductName = reader.GetOrdinal("product_name");
                     var colSupplierName = reader.GetOrdinal("supplier_name");
-                    var colSupplierId   = reader.GetOrdinal("m_id_supplier");
-                    var colQty          = reader.GetOrdinal("qty");
-                    var colDate         = reader.GetOrdinal("purchase_date");
+                    var colSupplierId = reader.GetOrdinal("m_id_supplier");
+                    var colQty = reader.GetOrdinal("qty");
+                    var colDate = reader.GetOrdinal("purchase_date");
                     var colDateReceived = reader.GetOrdinal("receive_date");
 
                     while (await reader.ReadAsync())
                     {
                         result.Add(new PurchaseListItem
                         {
-                            Id           = reader.GetInt32(colId),
-                            OrderNo      = reader.IsDBNull(colOrderNo)      ? null : reader.GetString(colOrderNo),
-                            Product      = reader.IsDBNull(colProductName)  ? null : reader.GetString(colProductName),
-                            Supplier     = reader.IsDBNull(colSupplierName) ? null : reader.GetString(colSupplierName),
-                            SupplierId   = reader.IsDBNull(colSupplierId)   ? null : reader.GetInt32(colSupplierId),
-                            Quantity     = reader.IsDBNull(colQty)          ? 0    : reader.GetInt32(colQty),
-                            Date         = reader.IsDBNull(colDate)         ? null : reader.GetDateTime(colDate),
+                            Id = reader.GetInt32(colId),
+                            OrderNo = reader.IsDBNull(colOrderNo) ? null : reader.GetString(colOrderNo),
+                            Product = reader.IsDBNull(colProductName) ? null : reader.GetString(colProductName),
+                            Supplier = reader.IsDBNull(colSupplierName) ? null : reader.GetString(colSupplierName),
+                            SupplierId = reader.IsDBNull(colSupplierId) ? null : reader.GetInt32(colSupplierId),
+                            Quantity = reader.IsDBNull(colQty) ? 0 : reader.GetInt32(colQty),
+                            Date = reader.IsDBNull(colDate) ? null : reader.GetDateTime(colDate),
                             DateReceived = reader.IsDBNull(colDateReceived) ? null : reader.GetDateTime(colDateReceived),
                         });
                     }
@@ -100,14 +107,20 @@ namespace MyStockAPI.Controllers
                     FROM (
                         SELECT 1
                         FROM tbl_purchase p
-                        JOIN tbl_suppliers s ON p.m_id_supplier = s.m_id";
+                        LEFT JOIN tbl_suppliers s ON p.m_id_supplier = s.m_id";
 
                 if (!string.IsNullOrEmpty(search))
                 {
                     countQuery += @"
+                        LEFT JOIN tbl_products      pr ON p.m_item     = pr.m_name
+                        LEFT JOIN tbl_product_types pt ON pr.m_id_type = pt.m_id
                         WHERE
                             s.m_name LIKE @search OR
                             p.m_item LIKE @search OR
+                            pr.m_name LIKE @search OR
+                            pt.m_type LIKE @search OR
+                            pt.m_type_sub LIKE @search OR
+                            p.m_description LIKE @search OR
                             CAST(p.m_order_no AS CHAR) LIKE @search";
                 }
 
@@ -155,17 +168,71 @@ namespace MyStockAPI.Controllers
                 var colRack = reader.GetOrdinal("m_rack_location");
                 var colDesc = reader.GetOrdinal("m_description");
                 var colLink = reader.GetOrdinal("m_buy_link");
-                var colQty  = reader.GetOrdinal("m_qty");
+                var colQty = reader.GetOrdinal("m_qty");
 
                 while (await reader.ReadAsync())
                 {
                     result.Add(new PurchaseOrderItem
                     {
-                        Item        = reader.IsDBNull(colItem) ? null : reader.GetString(colItem),
-                        Rack        = reader.IsDBNull(colRack) ? null : reader.GetString(colRack),
+                        Item = reader.IsDBNull(colItem) ? null : reader.GetString(colItem),
+                        Rack = reader.IsDBNull(colRack) ? null : reader.GetString(colRack),
                         Description = reader.IsDBNull(colDesc) ? null : reader.GetString(colDesc),
-                        Link        = reader.IsDBNull(colLink) ? null : reader.GetString(colLink),
-                        Qty         = reader.IsDBNull(colQty)  ? 0    : reader.GetDouble(colQty),
+                        Link = reader.IsDBNull(colLink) ? null : reader.GetString(colLink),
+                        Qty = reader.IsDBNull(colQty) ? 0 : reader.GetDouble(colQty),
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return Ok(result);
+        }
+
+        // GET /api/purchase/byproduct?productId=5
+        // Purchase rows for one product (tbl_purchase.m_item matched to tbl_products.m_name)
+        [HttpGet("byproduct")]
+        public async Task<IActionResult> GetPurchasesByProduct(int productId)
+        {
+            var result = new List<object>();
+
+            try
+            {
+                using var conn = _db.GetConnection();
+                await conn.OpenAsync();
+
+                var cmd = new MySqlCommand(@"
+                    SELECT p.m_id, p.m_date, p.m_date_received, p.m_order_no, p.m_qty,
+                           s.m_name AS supplier_name
+                    FROM tbl_purchase p
+                    JOIN tbl_products pr ON p.m_item = pr.m_name
+                    LEFT JOIN tbl_suppliers s ON p.m_id_supplier = s.m_id
+                    WHERE pr.m_id = @productId
+                    ORDER BY p.m_date ASC, p.m_id ASC",
+                    conn);
+
+                cmd.Parameters.AddWithValue("@productId", productId);
+
+                using var reader = await cmd.ExecuteReaderAsync();
+
+                var colId = reader.GetOrdinal("m_id");
+                var colDate = reader.GetOrdinal("m_date");
+                var colDateReceived = reader.GetOrdinal("m_date_received");
+                var colOrderNo = reader.GetOrdinal("m_order_no");
+                var colQty = reader.GetOrdinal("m_qty");
+                var colSupplier = reader.GetOrdinal("supplier_name");
+
+                while (await reader.ReadAsync())
+                {
+                    result.Add(new
+                    {
+                        id = reader.GetInt32(colId),
+                        date = reader.IsDBNull(colDate) ? (DateTime?)null : reader.GetDateTime(colDate),
+                        dateReceived = reader.IsDBNull(colDateReceived) ? (DateTime?)null : reader.GetDateTime(colDateReceived),
+                        orderNo = reader.IsDBNull(colOrderNo) ? null : reader.GetString(colOrderNo),
+                        qty = reader.IsDBNull(colQty) ? 0 : reader.GetDouble(colQty),
+                        supplier = reader.IsDBNull(colSupplier) ? null : reader.GetString(colSupplier),
                     });
                 }
             }
@@ -199,16 +266,16 @@ namespace MyStockAPI.Controllers
                             (@m_id_supplier, @m_order_no, @m_slno, @m_date, @m_date_received, @m_item, @m_qty, @m_rate, @m_gst, @m_amount)",
                         conn, (MySqlTransaction)tran);
 
-                    cmd.Parameters.AddWithValue("@m_id_supplier",   request.m_id_supplier);
-                    cmd.Parameters.AddWithValue("@m_order_no",      request.m_order_no ?? "");
-                    cmd.Parameters.AddWithValue("@m_slno",          item.m_slno);
-                    cmd.Parameters.AddWithValue("@m_date",          request.m_date);
+                    cmd.Parameters.AddWithValue("@m_id_supplier", request.m_id_supplier);
+                    cmd.Parameters.AddWithValue("@m_order_no", request.m_order_no ?? "");
+                    cmd.Parameters.AddWithValue("@m_slno", item.m_slno);
+                    cmd.Parameters.AddWithValue("@m_date", request.m_date);
                     cmd.Parameters.AddWithValue("@m_date_received", request.m_date_received);
-                    cmd.Parameters.AddWithValue("@m_item",          item.m_item ?? "");
-                    cmd.Parameters.AddWithValue("@m_qty",           item.m_qty);
-                    cmd.Parameters.AddWithValue("@m_rate",          item.m_rate);
-                    cmd.Parameters.AddWithValue("@m_gst",           item.m_gst);
-                    cmd.Parameters.AddWithValue("@m_amount",        item.m_amount);
+                    cmd.Parameters.AddWithValue("@m_item", item.m_item ?? "");
+                    cmd.Parameters.AddWithValue("@m_qty", item.m_qty);
+                    cmd.Parameters.AddWithValue("@m_rate", item.m_rate);
+                    cmd.Parameters.AddWithValue("@m_gst", item.m_gst);
+                    cmd.Parameters.AddWithValue("@m_amount", item.m_amount);
 
                     await cmd.ExecuteNonQueryAsync();
                 }
@@ -247,16 +314,16 @@ namespace MyStockAPI.Controllers
 
                 using var reader = await cmd.ExecuteReaderAsync();
 
-                var colSupplierId   = reader.GetOrdinal("m_id_supplier");
-                var colOrderNo      = reader.GetOrdinal("m_order_no");
-                var colDate         = reader.GetOrdinal("m_date");
+                var colSupplierId = reader.GetOrdinal("m_id_supplier");
+                var colOrderNo = reader.GetOrdinal("m_order_no");
+                var colDate = reader.GetOrdinal("m_date");
                 var colDateReceived = reader.GetOrdinal("m_date_received");
 
                 if (await reader.ReadAsync())
                 {
-                    obj.m_id_supplier   = reader.IsDBNull(colSupplierId)   ? 0    : reader.GetInt32(colSupplierId);
-                    obj.m_order_no      = reader.IsDBNull(colOrderNo)      ? ""   : reader.GetString(colOrderNo);
-                    obj.m_date          = reader.IsDBNull(colDate)         ? null : reader.GetDateTime(colDate);
+                    obj.m_id_supplier = reader.IsDBNull(colSupplierId) ? 0 : reader.GetInt32(colSupplierId);
+                    obj.m_order_no = reader.IsDBNull(colOrderNo) ? "" : reader.GetString(colOrderNo);
+                    obj.m_date = reader.IsDBNull(colDate) ? null : reader.GetDateTime(colDate);
                     obj.m_date_received = reader.IsDBNull(colDateReceived) ? null : reader.GetDateTime(colDateReceived);
                 }
 
@@ -271,27 +338,27 @@ namespace MyStockAPI.Controllers
                     WHERE m_id_supplier = @m_id_supplier AND m_order_no = @m_order_no",
                     conn);
                 cmd2.Parameters.AddWithValue("@m_id_supplier", obj.m_id_supplier);
-                cmd2.Parameters.AddWithValue("@m_order_no",    obj.m_order_no);
+                cmd2.Parameters.AddWithValue("@m_order_no", obj.m_order_no);
 
                 using var reader2 = await cmd2.ExecuteReaderAsync();
 
-                var colSlno   = reader2.GetOrdinal("m_slno");
-                var colItem   = reader2.GetOrdinal("m_item");
-                var colQty    = reader2.GetOrdinal("m_qty");
-                var colRate   = reader2.GetOrdinal("m_rate");
-                var colGst    = reader2.GetOrdinal("m_gst");
+                var colSlno = reader2.GetOrdinal("m_slno");
+                var colItem = reader2.GetOrdinal("m_item");
+                var colQty = reader2.GetOrdinal("m_qty");
+                var colRate = reader2.GetOrdinal("m_rate");
+                var colGst = reader2.GetOrdinal("m_gst");
                 var colAmount = reader2.GetOrdinal("m_amount");
 
                 while (await reader2.ReadAsync())
                 {
                     obj.items.Add(new PurchaseItemRequest
                     {
-                        m_slno   = reader2.IsDBNull(colSlno)   ? 0    : reader2.GetInt32(colSlno),
-                        m_item   = reader2.IsDBNull(colItem)   ? null : reader2.GetString(colItem),
-                        m_qty    = reader2.IsDBNull(colQty)    ? 0    : reader2.GetDouble(colQty),
-                        m_rate   = reader2.IsDBNull(colRate)   ? 0    : reader2.GetDouble(colRate),
-                        m_gst    = reader2.IsDBNull(colGst)    ? 0    : reader2.GetDouble(colGst),
-                        m_amount = reader2.IsDBNull(colAmount) ? 0    : reader2.GetDouble(colAmount),
+                        m_slno = reader2.IsDBNull(colSlno) ? 0 : reader2.GetInt32(colSlno),
+                        m_item = reader2.IsDBNull(colItem) ? null : reader2.GetString(colItem),
+                        m_qty = reader2.IsDBNull(colQty) ? 0 : reader2.GetDouble(colQty),
+                        m_rate = reader2.IsDBNull(colRate) ? 0 : reader2.GetDouble(colRate),
+                        m_gst = reader2.IsDBNull(colGst) ? 0 : reader2.GetDouble(colGst),
+                        m_amount = reader2.IsDBNull(colAmount) ? 0 : reader2.GetDouble(colAmount),
                     });
                 }
             }

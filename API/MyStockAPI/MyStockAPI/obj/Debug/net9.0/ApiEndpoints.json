@@ -242,6 +242,22 @@
   },
   {
     "ContainingType": "MyStockAPI.Controllers.PurchaseController",
+    "Method": "GetPurchasesByProduct",
+    "RelativePath": "api/Purchase/byproduct",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "productId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MyStockAPI.Controllers.PurchaseController",
     "Method": "Create",
     "RelativePath": "api/Purchase/create",
     "HttpMethod": "POST",
@@ -351,6 +367,11 @@
       {
         "Name": "pageSize",
         "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "productId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       }
     ],

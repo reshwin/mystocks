@@ -18,9 +18,9 @@ namespace MyStockAPI.Controllers
             _activity = activity;
         }
 
-        // GET /api/stock/movements?page=1&pageSize=20
+        // GET /api/stock/movements?page=1&pageSize=20&productId=5
         [HttpGet("movements")]
-        public async Task<IActionResult> GetMovements(int page = 1, int pageSize = 20)
+        public async Task<IActionResult> GetMovements(int page = 1, int pageSize = 20, int? productId = null)
         {
             int offset = (page - 1) * pageSize;
 
@@ -42,16 +42,19 @@ namespace MyStockAPI.Controllers
                 FROM tbl_stock_movements sm
                 JOIN tbl_products p ON sm.m_product_id = p.m_id
                 JOIN tbl_users    u ON sm.m_user_id    = u.m_id
+                WHERE (@productId IS NULL OR sm.m_product_id = @productId)
                 ORDER BY sm.m_date DESC, sm.m_id DESC
                 LIMIT @offset, @pageSize";
 
-            const string countSql = "SELECT COUNT(*) FROM tbl_stock_movements";
+            const string countSql = @"
+                SELECT COUNT(*) FROM tbl_stock_movements
+                WHERE (@productId IS NULL OR m_product_id = @productId)";
 
             try
             {
                 using var conn = _db.GetConnection();
-                var rows  = await conn.QueryAsync<StockMovementDto>(dataSql, new { offset, pageSize });
-                var total = await conn.ExecuteScalarAsync<int>(countSql);
+                var rows = await conn.QueryAsync<StockMovementDto>(dataSql, new { offset, pageSize, productId });
+                var total = await conn.ExecuteScalarAsync<int>(countSql, new { productId });
                 return Ok(new { data = rows, total, page, pageSize });
             }
             catch (Exception ex)

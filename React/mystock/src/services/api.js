@@ -140,6 +140,13 @@ export async function getPurchaseById(m_id) {
   return res.json();
 }
 
+// Purchase rows for one product — [{id, date, dateReceived, orderNo, qty, supplier}]
+export async function getPurchasesByProduct(productId) {
+  const res = await fetch(`${BASE}/api/purchase/byproduct?productId=${productId}&t=${Date.now()}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Failed to fetch purchases for product");
+  return res.json();
+}
+
 export async function createPurchase(payload) {
   const res = await axios.post(`${BASE}/api/purchase/create`, {
     ...payload,

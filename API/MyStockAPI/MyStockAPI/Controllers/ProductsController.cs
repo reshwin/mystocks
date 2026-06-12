@@ -43,6 +43,7 @@ namespace MyStockAPI.Controllers
                     FROM tbl_products p
                     LEFT JOIN tbl_product_types pt  ON p.m_id_type = pt.m_id
                     LEFT JOIN tbl_purchase      pur ON pur.m_item   = p.m_name
+                                                   AND pur.m_date_received IS NOT NULL
                     GROUP BY p.m_id, p.m_name, p.m_id_type, pt.m_type, pt.m_type_sub,
                              p.m_pins, p.m_rack_location, p.m_link, p.m_description
                     ORDER BY p.m_name ASC",

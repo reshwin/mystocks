@@ -165,7 +165,7 @@ export default function PurchaseListPage() {
               <th>Supplier</th>
               <th>Order No</th>
               <th>Product / Items</th>
-              <th style={{ textAlign: "center" }}>Qty</th>
+              <th style={{ textAlign: "center" }}>Items</th>
               <th>Ordered</th>
               <th>Received</th>
               <th style={{ width: "80px" }}>Actions</th>

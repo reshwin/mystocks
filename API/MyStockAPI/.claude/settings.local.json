@@ -10,7 +10,8 @@
       "Bash(dotnet add *)",
       "Bash(dotnet build *)",
       "Bash(New-Item *)",
-      "PowerShell(New-Item *)"
+      "PowerShell(New-Item *)",
+      "PowerShell(dotnet build *)"
     ]
   }
 }

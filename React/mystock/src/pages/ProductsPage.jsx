@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PageIntro from '../components/PageIntro';
 import ActionButtons from '../components/ActionButtons';
-import { getProducts, deleteProduct, getStockMovements, patchRackLocation } from '../services/api';
+import { getProducts, deleteProduct, getStockMovements, getPurchasesByProduct, patchRackLocation } from '../services/api';
 
 const PAGE_SIZE = 15;
 
@@ -18,7 +18,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(false);
 
   const [stockModal, setStockModal] = useState(null);
-  const [movements, setMovements] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [movLoading, setMovLoading] = useState(false);
 
   const [rackEdit, setRackEdit] = useState(null);   // { row, value }
@@ -66,10 +66,45 @@ export default function ProductsPage() {
 
   const openStockModal = (row) => {
     setStockModal(row);
-    setMovements([]);
+    setTransactions([]);
     setMovLoading(true);
-    getStockMovements({ pageSize: 9999, productId: row.m_id })
-      .then(res => setMovements(res.data ?? []))
+    Promise.all([
+      getStockMovements({ pageSize: 9999, productId: row.m_id }),
+      getPurchasesByProduct(row.m_id),
+    ])
+      .then(([mov, purchases]) => {
+        const rows = [
+          ...(purchases ?? []).map(p => ({
+            key: `p-${p.id}`,
+            date: p.date,
+            type: 'purchase',
+            direction: 'in',
+            qty: Number(p.qty ?? 0),
+            project: p.supplier,
+            notes: `Order ${p.orderNo || '—'}`,
+            pending: !p.dateReceived,
+          })),
+          ...(mov.data ?? []).map(m => ({
+            key: `m-${m.m_id}`,
+            date: m.m_date,
+            type: m.m_type,
+            direction: m.m_direction,
+            qty: Number(m.m_qty ?? 0),
+            project: m.m_project,
+            notes: m.m_notes,
+            pending: false,
+          })),
+        ].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        // Pending purchases (m_date_received still null) are listed but
+        // excluded from the running balance until the item is received.
+        let balance = 0;
+        for (const t of rows) {
+          if (!t.pending) balance += t.direction === 'in' ? t.qty : -t.qty;
+          t.balance = balance;
+        }
+        setTransactions(rows.reverse());
+      })
       .catch(console.error)
       .finally(() => setMovLoading(false));
   };
@@ -300,8 +335,8 @@ export default function ProductsPage() {
             <div style={{ overflowY: 'auto', flex: 1 }}>
               {movLoading ? (
                 <p style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>Loading…</p>
-              ) : movements.length === 0 ? (
-                <p style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No movements recorded.</p>
+              ) : transactions.length === 0 ? (
+                <p style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-text-muted)' }}>No transactions recorded.</p>
               ) : (
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
                   <thead>
@@ -311,35 +346,39 @@ export default function ProductsPage() {
                       <th style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 600 }}>Dir</th>
                       <th style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 600 }}>Qty</th>
                       <th style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 600 }}>Balance</th>
-                      <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600 }}>Project</th>
+                      <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600 }}>Project / Supplier</th>
                       <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600 }}>Notes</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {(() => {
-                      let balance = stockModal.stockPurchased ?? 0;
-                      return movements.map((m, i) => {
-                        const qty = Number(m.m_qty ?? 0);
-                        balance += m.m_direction === 'in' ? qty : -qty;
-                        return (
-                          <tr key={m.m_id ?? i} style={{ borderBottom: '1px solid var(--color-border)' }}>
-                            <td style={{ padding: '7px 12px', whiteSpace: 'nowrap' }}>{fmtDate(m.m_date)}</td>
-                            <td style={{ padding: '7px 12px' }}>
-                              <span className="badge" style={{ textTransform: 'capitalize' }}>{m.m_type}</span>
-                            </td>
-                            <td style={{ padding: '7px 12px', textAlign: 'center', fontWeight: 700, color: m.m_direction === 'in' ? '#16a34a' : '#dc2626' }}>
-                              {m.m_direction === 'in' ? '↑' : '↓'}
-                            </td>
-                            <td style={{ padding: '7px 12px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: m.m_direction === 'in' ? '#16a34a' : '#dc2626', fontWeight: 600 }}>
-                              {m.m_direction === 'in' ? '+' : '−'}{qty}
-                            </td>
-                            <td style={{ padding: '7px 12px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{balance}</td>
-                            <td style={{ padding: '7px 12px', color: 'var(--color-text-muted)' }}>{m.m_project}</td>
-                            <td style={{ padding: '7px 12px', color: 'var(--color-text-muted)' }}>{m.m_notes}</td>
-                          </tr>
-                        );
-                      });
-                    })()}
+                    {transactions.map(t => (
+                      <tr key={t.key} style={{ borderBottom: '1px solid var(--color-border)' }}>
+                        <td style={{ padding: '7px 12px', whiteSpace: 'nowrap' }}>{fmtDate(t.date)}</td>
+                        <td style={{ padding: '7px 12px' }}>
+                          <span
+                            className="badge"
+                            style={{
+                              textTransform: 'capitalize',
+                              ...(t.type === 'purchase' && { background: 'var(--color-primary)', color: '#fff' }),
+                            }}
+                          >
+                            {t.type}
+                          </span>
+                          {t.pending && (
+                            <span style={{ marginLeft: 6, fontSize: '0.75rem', color: '#d97706', fontStyle: 'italic' }}>pending</span>
+                          )}
+                        </td>
+                        <td style={{ padding: '7px 12px', textAlign: 'center', fontWeight: 700, color: t.pending ? '#d97706' : t.direction === 'in' ? '#16a34a' : '#dc2626' }}>
+                          {t.direction === 'in' ? '↑' : '↓'}
+                        </td>
+                        <td style={{ padding: '7px 12px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', color: t.pending ? '#d97706' : t.direction === 'in' ? '#16a34a' : '#dc2626', fontWeight: 600 }}>
+                          {t.direction === 'in' ? '+' : '−'}{t.qty}
+                        </td>
+                        <td style={{ padding: '7px 12px', textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{t.balance}</td>
+                        <td style={{ padding: '7px 12px', color: 'var(--color-text-muted)' }}>{t.project}</td>
+                        <td style={{ padding: '7px 12px', color: 'var(--color-text-muted)' }}>{t.notes}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               )}
