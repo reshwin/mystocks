@@ -485,6 +485,48 @@
         }
       }
     },
+    "/api/Purchase/update/{m_id}": {
+      "put": {
+        "tags": [
+          "Purchase"
+        ],
+        "parameters": [
+          {
+            "name": "m_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseCreateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseCreateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Purchase/purchasebyid": {
       "get": {
         "tags": [
@@ -944,6 +986,14 @@
             "format": "date-time",
             "nullable": true
           },
+          "m_courier": {
+            "type": "string",
+            "nullable": true
+          },
+          "m_tracking": {
+            "type": "string",
+            "nullable": true
+          },
           "items": {
             "type": "array",
             "items": {
@@ -983,6 +1033,14 @@
           "m_amount": {
             "type": "number",
             "format": "double",
+            "nullable": true
+          },
+          "m_description": {
+            "type": "string",
+            "nullable": true
+          },
+          "m_buy_link": {
+            "type": "string",
             "nullable": true
           }
         },

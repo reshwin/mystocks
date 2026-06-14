@@ -55,10 +55,10 @@ C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Debug\net9.0\staticweba
 C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.MyStockAPI.props
 C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.MyStockAPI.props
 C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Debug\net9.0\staticwebassets.pack.json
+C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
 C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Debug\net9.0\MyStockAPI.csproj.Up2Date
 C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Debug\net9.0\MyStockAPI.dll
 C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Debug\net9.0\refint\MyStockAPI.dll
 C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Debug\net9.0\MyStockAPI.pdb
 C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Debug\net9.0\MyStockAPI.genruntimeconfig.cache
 C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Debug\net9.0\ref\MyStockAPI.dll
-C:\OneDrive\Eugene\MyStock\API\MyStockAPI\MyStockAPI\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt

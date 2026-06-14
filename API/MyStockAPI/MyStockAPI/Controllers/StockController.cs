@@ -1,4 +1,5 @@
 using Dapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyStockAPI.DTOs.Stock;
 using MyStockAPI.Helpers;
@@ -64,6 +65,7 @@ namespace MyStockAPI.Controllers
         }
 
         // POST /api/stock/movements
+        [Authorize(Roles = "admin,manager")]
         [HttpPost("movements")]
         public async Task<IActionResult> CreateMovement([FromBody] CreateStockMovementRequest req)
         {

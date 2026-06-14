@@ -52,8 +52,11 @@ export function AuthProvider({ children }) {
     });
   };
 
+  // Only admin and manager may create / edit / delete anything.
+  const canEdit = user?.role === 'admin' || user?.role === 'manager';
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token, loading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token, loading, canEdit }}>
       {children}
     </AuthContext.Provider>
   );

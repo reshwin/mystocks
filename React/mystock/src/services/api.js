@@ -1,6 +1,21 @@
 import axios from "axios";
+import { getStoredToken } from "../context/AuthContext";
 
 const BASE = import.meta.env.VITE_API_BASE;
+
+// Attach the stored JWT to every axios request so the API can authorize
+// the caller (writes require the admin/manager role).
+axios.interceptors.request.use((config) => {
+  const token = getStoredToken();
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+// Same Bearer header for the fetch-based calls (the deletes).
+const authHeaders = () => {
+  const token = getStoredToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 // Field normalizers — handle both m_name (C# property matches DB column)
 // and name (standard C# PascalCase → camelCase serialization).
@@ -52,7 +67,7 @@ export async function updateSupplier(id, payload) {
 }
 
 export async function deleteSupplier(id) {
-  const res = await fetch(`${BASE}/api/suppliers/delete/${id}`, { method: 'DELETE' });
+  const res = await fetch(`${BASE}/api/suppliers/delete/${id}`, { method: 'DELETE', headers: authHeaders() });
   if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
 }
 
@@ -112,7 +127,7 @@ export async function updateProduct(id, payload) {
 }
 
 export async function deleteProduct(id) {
-  const res = await fetch(`${BASE}/api/products/delete/${id}`, { method: 'DELETE' });
+  const res = await fetch(`${BASE}/api/products/delete/${id}`, { method: 'DELETE', headers: authHeaders() });
   if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
 }
 
@@ -147,21 +162,34 @@ export async function getPurchasesByProduct(productId) {
   return res.json();
 }
 
+// "" / null → null, otherwise a real number. The form inputs yield strings,
+// but the API's double? fields can't bind from JSON strings (would 400).
+const toNum = v => (v === "" || v == null ? null : Number(v));
+
+const normPurchasePayload = payload => ({
+  ...payload,
+  m_id_supplier: Number(payload.m_id_supplier),
+  items: (payload.items ?? []).map(it => ({
+    ...it,
+    m_qty:    toNum(it.m_qty),
+    m_rate:   toNum(it.m_rate),
+    m_gst:    toNum(it.m_gst),
+    m_amount: toNum(it.m_amount),
+  })),
+});
+
 export async function createPurchase(payload) {
-  const res = await axios.post(`${BASE}/api/purchase/create`, {
-    ...payload,
-    m_id_supplier: Number(payload.m_id_supplier)
-  });
+  const res = await axios.post(`${BASE}/api/purchase/create`, normPurchasePayload(payload));
   return res.data;
 }
 
 export async function updatePurchase(m_id, payload) {
-  const res = await axios.put(`${BASE}/api/purchase/update/${m_id}`, payload);
+  const res = await axios.put(`${BASE}/api/purchase/update/${m_id}`, normPurchasePayload(payload));
   return res.data;
 }
 
 export async function deletePurchase(id) {
-  const res = await fetch(`${BASE}/api/purchase/delete/${id}`, { method: 'DELETE' });
+  const res = await fetch(`${BASE}/api/purchase/delete/${id}`, { method: 'DELETE', headers: authHeaders() });
   if (!res.ok) throw new Error(`Delete failed: ${res.status}`);
 }
 

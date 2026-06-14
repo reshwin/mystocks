@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell(npm run build)"
+      "PowerShell(npm run build)",
+      "Read(//c/OneDrive/Eugene/MyStock/**)",
+      "Bash(\"/c/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe\" -uroot -pxyzz my_stocks -N -e \"SELECT m_id, m_id_supplier, CONCAT\\('[', IFNULL\\(m_order_no,'NULL'\\), ']'\\) AS order_no, m_slno, m_item FROM tbl_purchase WHERE m_id >= 120 ORDER BY m_id;\")"
+    ],
+    "additionalDirectories": [
+      "c:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Models"
     ]
   }
 }

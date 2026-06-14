@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using MyStockAPI.Helpers;
@@ -244,11 +245,22 @@ namespace MyStockAPI.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "admin,manager")]
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] PurchaseCreateRequest request)
         {
             if (request == null || request.items == null || request.items.Count == 0)
                 return BadRequest("Invalid data");
+
+            if (request.m_id_supplier == null || request.m_id_supplier == 0)
+                return BadRequest("A supplier is required.");
+
+            if (string.IsNullOrWhiteSpace(request.m_order_no))
+                return BadRequest("An order number is required.");
+
+            // Reject the whole order if any line has no item — no blank rows.
+            if (request.items.Any(i => string.IsNullOrWhiteSpace(i.m_item)))
+                return BadRequest("Every item row must have an item selected. Remove any empty rows before saving.");
 
             try
             {
@@ -261,21 +273,25 @@ namespace MyStockAPI.Controllers
                 {
                     var cmd = new MySqlCommand(@"
                         INSERT INTO tbl_purchase
-                            (m_id_supplier, m_order_no, m_slno, m_date, m_date_received, m_item, m_qty, m_rate, m_gst, m_amount)
+                            (m_id_supplier, m_order_no, m_slno, m_date, m_date_received, m_courier, m_tracking, m_item, m_qty, m_rate, m_gst, m_amount, m_description, m_buy_link)
                         VALUES
-                            (@m_id_supplier, @m_order_no, @m_slno, @m_date, @m_date_received, @m_item, @m_qty, @m_rate, @m_gst, @m_amount)",
+                            (@m_id_supplier, @m_order_no, @m_slno, @m_date, @m_date_received, @m_courier, @m_tracking, @m_item, @m_qty, @m_rate, @m_gst, @m_amount, @m_description, @m_buy_link)",
                         conn, (MySqlTransaction)tran);
 
                     cmd.Parameters.AddWithValue("@m_id_supplier", request.m_id_supplier);
                     cmd.Parameters.AddWithValue("@m_order_no", request.m_order_no ?? "");
                     cmd.Parameters.AddWithValue("@m_slno", item.m_slno);
-                    cmd.Parameters.AddWithValue("@m_date", request.m_date);
-                    cmd.Parameters.AddWithValue("@m_date_received", request.m_date_received);
+                    cmd.Parameters.AddWithValue("@m_date", (object?)request.m_date ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_date_received", (object?)request.m_date_received ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_courier", (object?)request.m_courier ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_tracking", (object?)request.m_tracking ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@m_item", item.m_item ?? "");
-                    cmd.Parameters.AddWithValue("@m_qty", item.m_qty);
-                    cmd.Parameters.AddWithValue("@m_rate", item.m_rate);
-                    cmd.Parameters.AddWithValue("@m_gst", item.m_gst);
-                    cmd.Parameters.AddWithValue("@m_amount", item.m_amount);
+                    cmd.Parameters.AddWithValue("@m_qty", (object?)item.m_qty ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_rate", (object?)item.m_rate ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_gst", (object?)item.m_gst ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_amount", (object?)item.m_amount ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_description", (object?)item.m_description ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_buy_link", (object?)item.m_buy_link ?? DBNull.Value);
 
                     await cmd.ExecuteNonQueryAsync();
                 }
@@ -285,6 +301,93 @@ namespace MyStockAPI.Controllers
                 await _activity.LogAsync(User, "purchase_create",
                     $"Order '{request.m_order_no}' supplier #{request.m_id_supplier} ({request.items.Count} items)");
                 return Ok(new { success = true, message = "Purchase saved successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        // PUT /api/purchase/update/{m_id}
+        // An order spans multiple rows keyed by (supplier, order_no). We look up
+        // the original key from m_id, delete that order's rows, then re-insert the
+        // edited items — all inside one transaction.
+        [Authorize(Roles = "admin,manager")]
+        [HttpPut("update/{m_id:int}")]
+        public async Task<IActionResult> Update(int m_id, [FromBody] PurchaseCreateRequest request)
+        {
+            if (request == null || request.items == null || request.items.Count == 0)
+                return BadRequest("Invalid data");
+
+            if (request.m_id_supplier == null || request.m_id_supplier == 0)
+                return BadRequest("A supplier is required.");
+
+            if (string.IsNullOrWhiteSpace(request.m_order_no))
+                return BadRequest("An order number is required.");
+
+            if (request.items.Any(i => string.IsNullOrWhiteSpace(i.m_item)))
+                return BadRequest("Every item row must have an item selected. Remove any empty rows before saving.");
+
+            try
+            {
+                using var conn = _db.GetConnection();
+                await conn.OpenAsync();
+
+                // Resolve the original (supplier, order_no) this row belongs to.
+                int origSupplier;
+                string? origOrderNo;
+                var lookup = new MySqlCommand(
+                    "SELECT m_id_supplier, m_order_no FROM tbl_purchase WHERE m_id = @m_id", conn);
+                lookup.Parameters.AddWithValue("@m_id", m_id);
+                using (var lr = await lookup.ExecuteReaderAsync())
+                {
+                    if (!await lr.ReadAsync())
+                        return NotFound("Purchase record not found.");
+                    origSupplier = lr.IsDBNull(0) ? 0 : lr.GetInt32(0);
+                    origOrderNo = lr.IsDBNull(1) ? null : lr.GetString(1);
+                }
+
+                using var tran = await conn.BeginTransactionAsync();
+
+                var del = new MySqlCommand(
+                    "DELETE FROM tbl_purchase WHERE m_id_supplier = @s AND m_order_no <=> @o",
+                    conn, (MySqlTransaction)tran);
+                del.Parameters.AddWithValue("@s", origSupplier);
+                del.Parameters.AddWithValue("@o", (object?)origOrderNo ?? DBNull.Value);
+                await del.ExecuteNonQueryAsync();
+
+                foreach (var item in request.items)
+                {
+                    var cmd = new MySqlCommand(@"
+                        INSERT INTO tbl_purchase
+                            (m_id_supplier, m_order_no, m_slno, m_date, m_date_received, m_courier, m_tracking, m_item, m_qty, m_rate, m_gst, m_amount, m_description, m_buy_link)
+                        VALUES
+                            (@m_id_supplier, @m_order_no, @m_slno, @m_date, @m_date_received, @m_courier, @m_tracking, @m_item, @m_qty, @m_rate, @m_gst, @m_amount, @m_description, @m_buy_link)",
+                        conn, (MySqlTransaction)tran);
+
+                    cmd.Parameters.AddWithValue("@m_id_supplier", request.m_id_supplier);
+                    cmd.Parameters.AddWithValue("@m_order_no", request.m_order_no ?? "");
+                    cmd.Parameters.AddWithValue("@m_slno", item.m_slno);
+                    cmd.Parameters.AddWithValue("@m_date", (object?)request.m_date ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_date_received", (object?)request.m_date_received ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_courier", (object?)request.m_courier ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_tracking", (object?)request.m_tracking ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_item", item.m_item ?? "");
+                    cmd.Parameters.AddWithValue("@m_qty", (object?)item.m_qty ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_rate", (object?)item.m_rate ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_gst", (object?)item.m_gst ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_amount", (object?)item.m_amount ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_description", (object?)item.m_description ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@m_buy_link", (object?)item.m_buy_link ?? DBNull.Value);
+
+                    await cmd.ExecuteNonQueryAsync();
+                }
+
+                await tran.CommitAsync();
+
+                await _activity.LogAsync(User, "purchase_update",
+                    $"Order '{request.m_order_no}' supplier #{request.m_id_supplier} ({request.items.Count} items)");
+                return Ok(new { success = true, message = "Purchase updated successfully" });
             }
             catch (Exception ex)
             {
@@ -306,7 +409,7 @@ namespace MyStockAPI.Controllers
                 await conn.OpenAsync();
 
                 var cmd = new MySqlCommand(@"
-                    SELECT m_id_supplier, m_order_no, m_date, m_date_received
+                    SELECT m_id_supplier, m_order_no, m_date, m_date_received, m_courier, m_tracking
                     FROM tbl_purchase
                     WHERE m_id = @m_id",
                     conn);
@@ -318,6 +421,8 @@ namespace MyStockAPI.Controllers
                 var colOrderNo = reader.GetOrdinal("m_order_no");
                 var colDate = reader.GetOrdinal("m_date");
                 var colDateReceived = reader.GetOrdinal("m_date_received");
+                var colCourier = reader.GetOrdinal("m_courier");
+                var colTracking = reader.GetOrdinal("m_tracking");
 
                 if (await reader.ReadAsync())
                 {
@@ -325,6 +430,8 @@ namespace MyStockAPI.Controllers
                     obj.m_order_no = reader.IsDBNull(colOrderNo) ? "" : reader.GetString(colOrderNo);
                     obj.m_date = reader.IsDBNull(colDate) ? null : reader.GetDateTime(colDate);
                     obj.m_date_received = reader.IsDBNull(colDateReceived) ? null : reader.GetDateTime(colDateReceived);
+                    obj.m_courier = reader.IsDBNull(colCourier) ? null : reader.GetString(colCourier);
+                    obj.m_tracking = reader.IsDBNull(colTracking) ? null : reader.GetString(colTracking);
                 }
 
                 await reader.CloseAsync();
@@ -333,7 +440,7 @@ namespace MyStockAPI.Controllers
                     return BadRequest("Invalid request");
 
                 var cmd2 = new MySqlCommand(@"
-                    SELECT m_slno, m_item, m_qty, m_rate, m_gst, m_amount
+                    SELECT m_slno, m_item, m_qty, m_rate, m_gst, m_amount, m_description, m_buy_link
                     FROM tbl_purchase
                     WHERE m_id_supplier = @m_id_supplier AND m_order_no = @m_order_no",
                     conn);
@@ -348,6 +455,8 @@ namespace MyStockAPI.Controllers
                 var colRate = reader2.GetOrdinal("m_rate");
                 var colGst = reader2.GetOrdinal("m_gst");
                 var colAmount = reader2.GetOrdinal("m_amount");
+                var colDesc = reader2.GetOrdinal("m_description");
+                var colLink = reader2.GetOrdinal("m_buy_link");
 
                 while (await reader2.ReadAsync())
                 {
@@ -359,6 +468,8 @@ namespace MyStockAPI.Controllers
                         m_rate = reader2.IsDBNull(colRate) ? 0 : reader2.GetDouble(colRate),
                         m_gst = reader2.IsDBNull(colGst) ? 0 : reader2.GetDouble(colGst),
                         m_amount = reader2.IsDBNull(colAmount) ? 0 : reader2.GetDouble(colAmount),
+                        m_description = reader2.IsDBNull(colDesc) ? null : reader2.GetString(colDesc),
+                        m_buy_link = reader2.IsDBNull(colLink) ? null : reader2.GetString(colLink),
                     });
                 }
             }
@@ -370,6 +481,7 @@ namespace MyStockAPI.Controllers
             return Ok(obj);
         }
 
+        [Authorize(Roles = "admin,manager")]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {

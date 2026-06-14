@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using MyStockAPI.Helpers;
@@ -143,6 +144,7 @@ namespace MyStockAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "admin,manager")]
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] ProductRequest request)
         {
@@ -177,6 +179,7 @@ namespace MyStockAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "admin,manager")]
         [HttpPut("update/{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] ProductRequest request)
         {
@@ -216,6 +219,7 @@ namespace MyStockAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "admin,manager")]
         [HttpPatch("{id}/rack")]
         public async Task<IActionResult> UpdateRackLocation(int id, [FromBody] RackLocationRequest request)
         {
@@ -246,6 +250,7 @@ namespace MyStockAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "admin,manager")]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int id)
         {

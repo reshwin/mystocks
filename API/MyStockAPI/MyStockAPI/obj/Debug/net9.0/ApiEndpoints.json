@@ -326,6 +326,27 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "MyStockAPI.Controllers.PurchaseController",
+    "Method": "Update",
+    "RelativePath": "api/Purchase/update/{m_id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "m_id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "MyStockAPI.Models.PurchaseCreateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "MyStockAPI.Controllers.StockController",
     "Method": "GetBalance",
     "RelativePath": "api/stock/balance",

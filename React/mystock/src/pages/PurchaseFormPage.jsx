@@ -24,19 +24,29 @@ export default function PurchaseFormPage({ mode }) {
     getComponents().then(setComponents);
 
     if (mode === 'edit' && m_id) {
-      getPurchaseById(m_id).then(setInitialValues);
+      getPurchaseById(m_id)
+        .then(setInitialValues)
+        .catch(err => {
+          console.error("Failed to load purchase:", err);
+          alert("This purchase record could not be loaded for editing (it may be incomplete or missing a supplier / order number).");
+          navigate('/purchase');
+        });
     }
   }, [mode, m_id]);
 
   const handleSubmit = async (payload) => {
-    console.log(mode+"__"+m_id);
-    if (mode === 'edit' && m_id) {
-      await updatePurchase(m_id, payload);
-    } else {
-      await createPurchase(payload);
+    try {
+      if (mode === 'edit' && m_id) {
+        await updatePurchase(m_id, payload);
+      } else {
+        await createPurchase(payload);
+      }
+      navigate('/purchase');
+    } catch (err) {
+      const serverMsg = err?.response?.data?.message ?? err?.response?.data ?? err.message;
+      alert("Save failed: " + serverMsg);
+      console.error("Purchase save failed:", err?.response?.status, serverMsg);
     }
-
-    navigate('/purchase');
   };
 
   if (mode === 'edit' && !initialValues) {

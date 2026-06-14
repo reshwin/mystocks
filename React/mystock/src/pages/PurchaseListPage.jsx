@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageIntro from '../components/PageIntro';
 import ActionButtons from '../components/ActionButtons';
+import { useAuth } from '../context/AuthContext';
 import { deletePurchase } from '../services/api';
 import React from "react";
 import './PurchaseListPage.css';
@@ -9,6 +10,7 @@ import './PurchaseListPage.css';
 
 export default function PurchaseListPage() {
   const navigate = useNavigate();
+  const { canEdit } = useAuth();
 
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
@@ -111,13 +113,15 @@ export default function PurchaseListPage() {
         title="Purchases"
 
         action={
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => navigate('/purchase/new')}
-          >
-            New Purchase
-          </button>
+          canEdit && (
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => navigate('/purchase/new')}
+            >
+              New Purchase
+            </button>
+          )
         }
       />
       <section className="card content-card" style={{ borderRadius: "6px" }}>
@@ -299,11 +303,13 @@ export default function PurchaseListPage() {
 
 
                     <td>
-                      <ActionButtons
-                        onEdit={() => navigate('/purchase/edit/' + row.id)}
-                        onDelete={() => handleDelete(row.id)}
-                        deleteDisabled
-                      />
+                      {canEdit && (
+                        <ActionButtons
+                          onEdit={() => navigate('/purchase/edit/' + row.id)}
+                          onDelete={() => handleDelete(row.id)}
+                          deleteDisabled
+                        />
+                      )}
                     </td>
 
 

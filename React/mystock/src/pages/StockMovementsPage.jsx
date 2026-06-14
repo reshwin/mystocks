@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageIntro from '../components/PageIntro';
+import { useAuth } from '../context/AuthContext';
 import { getStockMovements, getProducts } from '../services/api';
 import { capitalize } from '../utils/common';
 
@@ -23,6 +24,7 @@ const fmtDate = (val) => {
 
 export default function StockMovementsPage() {
   const navigate = useNavigate();
+  const { canEdit } = useAuth();
 
   const [data,     setData]     = useState([]);
   const [total,    setTotal]    = useState(0);
@@ -58,9 +60,11 @@ export default function StockMovementsPage() {
       <PageIntro
         title="Stock Movements"
         action={
-          <button className="btn btn-primary" onClick={() => navigate('/stock/new')}>
-            + Add Movement
-          </button>
+          canEdit && (
+            <button className="btn btn-primary" onClick={() => navigate('/stock/new')}>
+              + Add Movement
+            </button>
+          )
         }
       />
 

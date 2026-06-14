@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageIntro from '../components/PageIntro';
 import ActionButtons from '../components/ActionButtons';
+import { useAuth } from '../context/AuthContext';
 import { getSuppliers, deleteSupplier } from '../services/api';
 
 const PAGE_SIZE = 15;
 
 export default function SuppliersPage() {
   const navigate = useNavigate();
+  const { canEdit } = useAuth();
   const [allRows, setAllRows] = useState([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -47,9 +49,11 @@ export default function SuppliersPage() {
       <PageIntro
         title="Suppliers"
         action={
-          <button className="btn btn-primary" onClick={() => navigate('/suppliers/new')}>
-            + New Supplier
-          </button>
+          canEdit && (
+            <button className="btn btn-primary" onClick={() => navigate('/suppliers/new')}>
+              + New Supplier
+            </button>
+          )
         }
       />
 
@@ -121,11 +125,13 @@ export default function SuppliersPage() {
                     )}
                   </td>
                   <td>
-                    <ActionButtons
-                      onEdit={() => navigate(`/suppliers/edit/${row.m_id}`)}
-                      onDelete={() => handleDelete(row.m_id, row.m_name)}
-                      deleteDisabled
-                    />
+                    {canEdit && (
+                      <ActionButtons
+                        onEdit={() => navigate(`/suppliers/edit/${row.m_id}`)}
+                        onDelete={() => handleDelete(row.m_id, row.m_name)}
+                        deleteDisabled
+                      />
+                    )}
                   </td>
                 </tr>
               ))}

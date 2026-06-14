@@ -9,8 +9,8 @@ const PAGE_SIZE = 15;
 
 export default function ProductsPage() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const canEditRack = user?.role === 'admin' || user?.role === 'manager';
+  const { user, canEdit } = useAuth();
+  const canEditRack = canEdit;
   const [allRows, setAllRows] = useState([]);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
@@ -137,9 +137,11 @@ export default function ProductsPage() {
       <PageIntro
         title="Components"
         action={
-          <button className="btn btn-primary" onClick={() => navigate('/components/new')}>
-            + New Component
-          </button>
+          canEdit && (
+            <button className="btn btn-primary" onClick={() => navigate('/components/new')}>
+              + New Component
+            </button>
+          )
         }
       />
 
@@ -257,11 +259,13 @@ export default function ProductsPage() {
                     )}
                   </td>
                   <td>
-                    <ActionButtons
-                      onEdit={() => navigate(`/components/edit/${row.m_id}`)}
-                      onDelete={() => handleDelete(row.m_id, row.m_name)}
-                      deleteDisabled
-                    />
+                    {canEdit && (
+                      <ActionButtons
+                        onEdit={() => navigate(`/components/edit/${row.m_id}`)}
+                        onDelete={() => handleDelete(row.m_id, row.m_name)}
+                        deleteDisabled
+                      />
+                    )}
                   </td>
                 </tr>
               ))}

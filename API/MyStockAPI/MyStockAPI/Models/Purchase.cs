@@ -6,6 +6,8 @@ namespace MyStockAPI.Models
         public int? m_id_supplier { get; set; }
         public DateTime? m_date { get; set; }
         public DateTime? m_date_received { get; set; }
+        public string? m_courier { get; set; }
+        public string? m_tracking { get; set; }
         public List<PurchaseItemRequest> items { get; set; } = new();
     }
 
@@ -17,6 +19,8 @@ namespace MyStockAPI.Models
         public double? m_rate { get; set; }
         public double? m_gst { get; set; }
         public double? m_amount { get; set; }
+        public string? m_description { get; set; }
+        public string? m_buy_link { get; set; }
     }
 
     public class PurchaseListItem

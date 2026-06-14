@@ -8,7 +8,9 @@ const defaultItem = {
   m_qty: "",
   m_rate: "",
   m_gst: "",
-  m_amount: ""
+  m_amount: "",
+  m_description: "",
+  m_buy_link: ""
 };
 
 const getToday = () => new Date().toISOString().split("T")[0];
@@ -18,6 +20,8 @@ const defaultForm = {
   m_id_supplier: 0,
   m_date: getToday(),
   m_date_received:null,
+  m_courier: "",
+  m_tracking: "",
   items: [{ ...defaultItem }]
   //items: [defaultItem]
 };
@@ -81,6 +85,28 @@ export default function PurchaseForm({ onSubmit, suppliers, components, initialV
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Required header fields.
+    if (!form.m_id_supplier || Number(form.m_id_supplier) === 0) {
+      alert("Please select a supplier before saving.");
+      return;
+    }
+    if (!form.m_order_no || String(form.m_order_no).trim() === "") {
+      alert("Please enter an order number before saving.");
+      return;
+    }
+
+    // Block save if any row has no item selected — ask the user to
+    // remove the empty row instead of saving a blank entry.
+    const emptyRows = form.items
+      .map((item, index) => ({ item, index }))
+      .filter(({ item }) => !item.m_item || String(item.m_item).trim() === "");
+
+    if (emptyRows.length > 0) {
+      const rowNums = emptyRows.map(({ index }) => index + 1).join(", ");
+      alert(`Item is empty in row ${rowNums}. Please select an item or remove the row before saving.`);
+      return;
+    }
+
     // Optional: add slno before sending
     const payload = {
       ...form,
@@ -106,7 +132,7 @@ console.log(options)
     handleItemChange(index, field, selected?.value || "");
   };
   return (
-    <form onSubmit={handleSubmit} style={{ padding: 20 }}>
+    <form onSubmit={handleSubmit} style={{ padding: 12, maxWidth: 920 }}>
 
 
       {/* 🔹 Header Section */}
@@ -114,13 +140,15 @@ console.log(options)
 
 
 
-        <table className="PurchaeFormHead" border="0" cellPadding="5" style={{ width: "40%", borderCollapse: "collapse" }}>
+        <table className="PurchaeFormHead" border="0" cellPadding="2" style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
               <th>Order No</th>
               <th>Supplier</th>
               <th>Order Date</th>
               <th>Received On</th>
+              <th>Courier</th>
+              <th>Tracking No</th>
             </tr>
           </thead>
 
@@ -132,7 +160,6 @@ console.log(options)
                   placeholder="Order No"
                   value={form.m_order_no ?? ""}
                   onChange={handleChange}
-                  style={{ padding: "2px", borderRadius: "4px", marginRight: "10px", border: "1px solid #ccc" }}
                 />
               </td>
               <td>
@@ -141,7 +168,6 @@ console.log(options)
                   name="m_id_supplier"
 value={form.m_id_supplier ?? ""}   // ✅ important
                   onChange={handleChange}
-                  style={{ padding: "2px", borderRadius: "4px", marginRight: "10px", border: "1px solid #ccc" }}
                 >
                   <option value="">Select supplier</option>
                   {suppliers.map((supplier) => (
@@ -158,7 +184,6 @@ value={form.m_id_supplier ?? ""}   // ✅ important
   value={form.m_date ? form.m_date.split("T")[0] : ""}
                   //value={form.m_date ?? ""}
                   onChange={handleChange}
-                  style={{ padding: "2px", borderRadius: "4px", marginRight: "10px", border: "1px solid #ccc" }}
                 />
               </td>
               <td>
@@ -168,27 +193,43 @@ value={form.m_id_supplier ?? ""}   // ✅ important
 value={form.m_date_received ? form.m_date_received.split("T")[0] : ""}
                   //value={form.m_date_received ?? ""}
                   onChange={handleChange}
-                  style={{ padding: "2px", borderRadius: "4px", marginRight: "10px", border: "1px solid #ccc" }}
+                />
+              </td>
+              <td>
+                <input
+                  name="m_courier"
+                  placeholder="Courier"
+                  value={form.m_courier ?? ""}
+                  onChange={handleChange}
+                />
+              </td>
+              <td>
+                <input
+                  name="m_tracking"
+                  placeholder="Tracking No"
+                  value={form.m_tracking ?? ""}
+                  onChange={handleChange}
                 />
               </td>
             </tr>
 
           </tbody>
         </table>
-
-
-
-
       </div>
 
+      {/* Separator between header and item list */}
+      <hr style={{ border: 0, borderTop: "1px solid var(--color-border)", margin: "10px 0 14px" }} />
+
       {/* 🔹 Items Table */}
-      <table className="PurchaeFormData" border="1" cellPadding="5" style={{ width: "100%", tableLayout: "fixed" }}>
+      <table className="PurchaeFormData" border="1" cellPadding="2" style={{ width: "100%", tableLayout: "fixed" }}>
         <colgroup>
-          <col style={{ width: "20%" }} />
+          <col style={{ width: "18%" }} />
           <col style={{ width: "5%" }} />
-          <col style={{ width: "10%" }} />
           <col style={{ width: "7%" }} />
           <col style={{ width: "7%" }} />
+          <col style={{ width: "7%" }} />
+          <col style={{ width: "8%" }} />
+          <col style={{ width: "8%" }} />
           <col style={{ width: "7%" }} />
         </colgroup>
         <thead>
@@ -199,7 +240,9 @@ value={form.m_date_received ? form.m_date_received.split("T")[0] : ""}
             <th>Rate</th>
             <th>GST</th>
             <th>Amount</th>
-            <th>Product ID</th>
+            <th>Description</th>
+            <th>Buy Link</th>
+            <th></th>
           </tr>
         </thead>
 
@@ -282,11 +325,59 @@ value={form.m_date_received ? form.m_date_received.split("T")[0] : ""}
                 />
               </td>
 
-
+              <td>
+                <input
+                  type="text"
+                  value={item.m_description ?? ""}
+                  onChange={(e) =>
+                    handleItemChange(index, "m_description", e.target.value)
+                  }
+                  placeholder="Description"
+                  title={item.m_description ?? ""}
+                  maxLength={200}
+                  style={{ width: "100%", boxSizing: "border-box" }}
+                />
+              </td>
 
               <td>
-                <button type="button" onClick={() => removeItem(index)} disabled={mode === 'edit' || index === 0}>
-                  X
+                <input
+                  type="text"
+                  value={item.m_buy_link ?? ""}
+                  onChange={(e) =>
+                    handleItemChange(index, "m_buy_link", e.target.value)
+                  }
+                  placeholder="Buy link"
+                  title={item.m_buy_link ?? ""}
+                  maxLength={200}
+                  style={{ width: "100%", boxSizing: "border-box" }}
+                />
+              </td>
+
+
+
+              <td style={{ textAlign: "center" }}>
+                <button
+                  type="button"
+                  onClick={() => removeItem(index)}
+                  disabled={mode === 'edit' || index === 0}
+                  title="Remove item"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: mode === 'edit' || index === 0 ? "not-allowed" : "pointer",
+                    color: mode === 'edit' || index === 0 ? "#ccc" : "#dc2626",
+                    padding: 4,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 6h18" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    <line x1="10" y1="11" x2="10" y2="17" />
+                    <line x1="14" y1="11" x2="14" y2="17" />
+                  </svg>
                 </button>
               </td>
             </tr>
@@ -295,13 +386,20 @@ value={form.m_date_received ? form.m_date_received.split("T")[0] : ""}
       </table>
 
       {/* ➕ Add Item */}
-      <button type="button" onClick={addItem} style={{ marginTop: 10 }}>
+      <button
+        type="button"
+        onClick={addItem}
+        className="btn btn-secondary"
+        style={{ marginTop: 10, fontSize: 13, padding: "5px 12px", color: "var(--color-primary)", borderColor: "var(--color-primary)" }}
+      >
         + Add Item
       </button>
 
       {/* 💾 Submit */}
-      <div style={{ marginTop: 20 }}>
-        <button type="submit">Save Purchase</button>
+      <div style={{ marginTop: 20, display: "flex", justifyContent: "flex-end", borderTop: "1px solid var(--color-border)", paddingTop: 14 }}>
+        <button type="submit" className="btn btn-primary" style={{ fontSize: 14, padding: "8px 22px" }}>
+          {mode === 'edit' ? 'Update Purchase' : 'Save Purchase'}
+        </button>
       </div>
     </form>
   );

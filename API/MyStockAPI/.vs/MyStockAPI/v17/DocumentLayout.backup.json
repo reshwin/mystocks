@@ -3,12 +3,12 @@
   "WorkspaceRootPath": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|c:\\onedrive\\eugene\\mystock\\api\\mystockapi\\mystockapi\\controllers\\stockcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|solutionrelative:mystockapi\\controllers\\stockcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|c:\\onedrive\\eugene\\mystock\\api\\mystockapi\\mystockapi\\controllers\\purchasecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|solutionrelative:mystockapi\\controllers\\purchasecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|c:\\onedrive\\eugene\\mystock\\api\\mystockapi\\mystockapi\\controllers\\stockcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|solutionrelative:mystockapi\\controllers\\stockcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{347FAE83-2706-4FBD-9EE0-14C93A770EC7}|MyStockAPI\\MyStockAPI.csproj|c:\\onedrive\\eugene\\mystock\\api\\mystockapi\\mystockapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
@@ -46,7 +46,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -98,18 +98,17 @@
               "RelativeToolTip": "MyStockAPI\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-05-30T10:54:35.954Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-30T10:54:35.954Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "PurchaseController.cs",
               "DocumentMoniker": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Controllers\\PurchaseController.cs",
               "RelativeDocumentMoniker": "MyStockAPI\\Controllers\\PurchaseController.cs",
               "ToolTip": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Controllers\\PurchaseController.cs",
               "RelativeToolTip": "MyStockAPI\\Controllers\\PurchaseController.cs",
-              "ViewState": "AgIAALkAAAAAAAAAAAAUwE0AAAAXAAAAAAAAAA==",
+              "ViewState": "AgIAACEBAAAAAAAAAAAuwCgBAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-01T08:55:42.747Z",
               "EditorCaption": ""
@@ -140,13 +139,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "StockController.cs",
               "DocumentMoniker": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Controllers\\StockController.cs",
               "RelativeDocumentMoniker": "MyStockAPI\\Controllers\\StockController.cs",
               "ToolTip": "C:\\OneDrive\\Eugene\\MyStock\\API\\MyStockAPI\\MyStockAPI\\Controllers\\StockController.cs",
               "RelativeToolTip": "MyStockAPI\\Controllers\\StockController.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAAgwBAAAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAgwBMAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-30T09:32:34.518Z",
               "EditorCaption": ""
