@@ -61,7 +61,7 @@ export default function StockMovementsPage() {
         title="Stock Movements"
         action={
           canEdit && (
-            <button className="btn btn-primary" onClick={() => navigate('/stock/new')}>
+            <button className="btn btn-primary" onClick={() => navigate('/stock/new', { state: { from: '/stock' } })}>
               + Add Movement
             </button>
           )
@@ -80,6 +80,7 @@ export default function StockMovementsPage() {
               className="filter-select"
               value={productFilter}
               onChange={e => { setProductFilter(e.target.value); setPage(1); }}
+              style={productFilter ? { borderColor: '#dc2626', color: '#dc2626', fontWeight: 'bold' } : undefined}
             >
               <option value="">All components</option>
               {products.map(p => (

@@ -99,6 +99,9 @@ tr.row-pending:hover {
   text-align: left;
   background: #f9f9f9;
   font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .inner-table tr:last-child td {

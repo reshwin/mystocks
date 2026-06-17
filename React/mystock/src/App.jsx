@@ -17,7 +17,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-        <Route index element={<Navigate to="/suppliers" replace />} />
+        <Route index element={<Navigate to="/components" replace />} />
         <Route path="suppliers" element={<SuppliersPage />} />
         <Route path="suppliers/new" element={<EditorRoute redirectTo="/suppliers"><SupplierFormPage mode="create" /></EditorRoute>} />
         <Route path="suppliers/edit/:m_id" element={<EditorRoute redirectTo="/suppliers"><SupplierFormPage mode="edit" /></EditorRoute>} />

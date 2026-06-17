@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import PageIntro from '../components/PageIntro';
 import ActionButtons from '../components/ActionButtons';
+import usePersistentState from '../hooks/usePersistentState';
 import { getProducts, deleteProduct, getStockMovements, getPurchasesByProduct, patchRackLocation } from '../services/api';
 
 const PAGE_SIZE = 15;
@@ -12,7 +13,7 @@ export default function ProductsPage() {
   const { user, canEdit } = useAuth();
   const canEditRack = canEdit;
   const [allRows, setAllRows] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = usePersistentState("components.search", "");
   const [typeFilter, setTypeFilter] = useState("");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -87,6 +88,7 @@ export default function ProductsPage() {
           ...(mov.data ?? []).map(m => ({
             key: `m-${m.m_id}`,
             date: m.m_date,
+            createdAt: m.m_created_at,
             type: m.m_type,
             direction: m.m_direction,
             qty: Number(m.m_qty ?? 0),
@@ -94,7 +96,15 @@ export default function ProductsPage() {
             notes: m.m_notes,
             pending: false,
           })),
-        ].sort((a, b) => new Date(a.date) - new Date(b.date));
+        ].sort((a, b) => {
+          // m_date is date-only, so ties are broken by m_created_at (full
+          // timestamp); purchases have no created_at and fall back to the date.
+          const byDate = new Date(a.date) - new Date(b.date);
+          if (byDate !== 0) return byDate;
+          const ca = a.createdAt ? new Date(a.createdAt) : new Date(a.date);
+          const cb = b.createdAt ? new Date(b.createdAt) : new Date(b.date);
+          return ca - cb;
+        });
 
         // Pending purchases (m_date_received still null) are listed but
         // excluded from the running balance until the item is received.
@@ -162,6 +172,7 @@ export default function ProductsPage() {
               className="filter-select"
               value={typeFilter}
               onChange={e => { setTypeFilter(e.target.value); setPage(1); }}
+              style={typeFilter ? { borderColor: '#dc2626', color: '#dc2626', fontWeight: 'bold' } : undefined}
             >
               <option value="">All types</option>
               {types.map(t => (
@@ -175,6 +186,7 @@ export default function ProductsPage() {
                 placeholder="Search components…"
                 value={search}
                 onChange={e => { setSearch(e.target.value); setPage(1); }}
+                style={search ? { borderColor: '#dc2626', color: '#dc2626', fontWeight: 'bold' } : undefined}
               />
               {search && (
                 <span
@@ -332,7 +344,19 @@ export default function ProductsPage() {
                   <strong style={{ color: 'var(--color-primary)' }}>Balance: {(stockModal.stockPurchased ?? 0) + (stockModal.stockIn ?? 0) - (stockModal.stockOut ?? 0)}</strong>
                 </span>
               </div>
-              <button onClick={() => setStockModal(null)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: 'var(--color-text-muted)', lineHeight: 1 }}>×</button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                {canEdit && (
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => navigate('/stock/new', { state: { from: '/components', product: { m_id: stockModal.m_id, m_name: stockModal.m_name, m_type: stockModal.m_type, m_type_sub: stockModal.m_type_sub } } })}
+                    style={{ fontSize: '0.8rem', padding: '5px 12px', whiteSpace: 'nowrap' }}
+                  >
+                    + Add Movement
+                  </button>
+                )}
+                <button onClick={() => setStockModal(null)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', color: 'var(--color-text-muted)', lineHeight: 1 }}>×</button>
+              </div>
             </div>
 
             {/* Body */}

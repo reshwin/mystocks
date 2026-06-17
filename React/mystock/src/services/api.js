@@ -92,6 +92,14 @@ export async function getProductTypes() {
   return res.json();
 }
 
+// Predefined projects (tbl_projects) — [{id, name}]
+export async function getProjects() {
+  const res = await fetch(`${BASE}/api/projects/items`);
+  if (!res.ok) throw new Error("Failed to fetch projects");
+  const data = await res.json();
+  return data.map(p => ({ id: p.id ?? p.m_id, name: p.name ?? p.m_name }));
+}
+
 export async function getProductSubTypes(type) {
   const res = await fetch(`${BASE}/api/producttypes/subtypes/${encodeURIComponent(type)}`);
   if (!res.ok) throw new Error("Failed to fetch product sub-types");
@@ -207,6 +215,7 @@ const normMovement = m => ({
   m_notes:       m.m_notes       ?? m.mNotes        ?? m.notes        ?? null,
   m_user_id:     m.m_user_id     ?? m.mUserId       ?? m.userId,
   m_user_name:   m.m_user_name   ?? m.mUserName     ?? m.userName ?? m.user ?? null,
+  m_created_at:  m.m_created_at  ?? m.mCreatedAt    ?? m.createdAt   ?? m.created_at ?? null,
 });
 
 export async function getStockMovements({ page = 1, pageSize = 20, productId = '' } = {}) {

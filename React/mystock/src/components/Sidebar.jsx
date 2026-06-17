@@ -2,10 +2,10 @@ import { Fragment } from 'react';
 import { NavLink } from 'react-router-dom';
 
 const navItems = [
-  { label: 'Suppliers',  path: '/suppliers' },
   { label: 'Components', path: '/components' },
   { label: 'Purchase',   path: '/purchase' },
-  { label: 'Stock',      path: '/stock', divider: true },
+  { label: 'Suppliers',  path: '/suppliers' },
+  { label: 'Stock Movement', path: '/stock', divider: true },
 ];
 const styles = {
   logo: {

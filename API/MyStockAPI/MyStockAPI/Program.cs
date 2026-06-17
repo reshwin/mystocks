@@ -41,10 +41,31 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddCors(options =>
 {
+    // Credentialed requests (cookies) cannot use AllowAnyOrigin; reflect the
+    // caller's origin when it belongs to our own site (doomsquare.com) or is local dev.
     options.AddPolicy("AllowReact",
-        policy => policy.AllowAnyOrigin()
-                        .AllowAnyHeader()
-                        .AllowAnyMethod());
+        policy => policy
+            .SetIsOriginAllowed(origin =>
+            {
+                if (string.IsNullOrEmpty(origin)) return false;
+                try
+                {
+                    var host = new Uri(origin).Host;
+                    return host == "localhost"
+                        || host == "127.0.0.1"
+                        || host == "doomsquare.com"
+                        || host.EndsWith(".doomsquare.com")
+                        // private LAN ranges for on-device dev testing (token-based)
+                        || host.StartsWith("192.168.")
+                        || host.StartsWith("10.")
+                        || host.StartsWith("172.16.") || host.StartsWith("172.17.") || host.StartsWith("172.18.") || host.StartsWith("172.19.")
+                        || host.StartsWith("172.2")   || host.StartsWith("172.30.") || host.StartsWith("172.31.");
+                }
+                catch { return false; }
+            })
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials());
 });
 
 var jwtKey = builder.Configuration["Jwt:Key"]!;
@@ -60,6 +81,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+
+        // Accept the token from the HttpOnly auth cookie when no Bearer header is present.
+        var cookieName = builder.Configuration["Auth:CookieName"] ?? "auth_token";
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (string.IsNullOrEmpty(context.Token) &&
+                    context.Request.Cookies.TryGetValue(cookieName, out var cookieToken))
+                {
+                    context.Token = cookieToken;
+                }
+                return Task.CompletedTask;
+            }
         };
     });
 

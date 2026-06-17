@@ -32,7 +32,7 @@ namespace MyStockAPI.Controllers
                 var cmd = new MySqlCommand(@"
                     SELECT p.m_id, p.m_name, p.m_id_type, pt.m_type, pt.m_type_sub,
                            p.m_pins, p.m_rack_location, p.m_link, p.m_description,
-                           SUM(pur.m_qty) AS m_stock_Purchased,
+                           COALESCE(SUM(pur.m_qty), 0) AS m_stock_Purchased,
                            COALESCE((
                                SELECT SUM(m_qty) FROM tbl_stock_movements
                                WHERE m_product_id = p.m_id AND m_direction = 'in'

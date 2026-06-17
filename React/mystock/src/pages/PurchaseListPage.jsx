@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import PageIntro from '../components/PageIntro';
 import ActionButtons from '../components/ActionButtons';
 import { useAuth } from '../context/AuthContext';
+import usePersistentState from '../hooks/usePersistentState';
 import { deletePurchase } from '../services/api';
 import React from "react";
 import './PurchaseListPage.css';
@@ -18,8 +19,8 @@ export default function PurchaseListPage() {
 
   const [expandedRow, setExpandedRow] = useState(null);
   const [itemsMap, setItemsMap] = useState({});
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [search, setSearch] = usePersistentState("purchases.search", "");
+  const [debouncedSearch, setDebouncedSearch] = useState(() => search);
   const [pendingOnly, setPendingOnly] = useState(false);
   const [tick, setTick] = useState(0);
 
@@ -138,6 +139,7 @@ export default function PurchaseListPage() {
                 placeholder="Search purchases…"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
+                style={search ? { borderColor: '#dc2626', color: '#dc2626', fontWeight: 'bold' } : undefined}
               />
               {search && (
                 <span
@@ -216,7 +218,7 @@ export default function PurchaseListPage() {
                         </div>
 
                         {expandedRow === key && (
-                          <div className="cell-expand" style={{ marginLeft: "1em", marginRight: "1em", border: "1px solid #dcdcdc", borderRadius: "5px" }}>
+                          <div className="cell-expand" style={{ marginLeft: "1em", marginRight: "1em", border: "1px solid #dcdcdc", borderRadius: "5px", maxHeight: "220px", overflowY: "auto", paddingRight: "8px" }}>
                             <table className="inner-table">
                               <colgroup>
                                 <col style={{ width: "80%" }} />

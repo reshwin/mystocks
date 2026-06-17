@@ -26,6 +26,16 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "MyStockAPI.Controllers.AuthController",
+    "Method": "Me",
+    "RelativePath": "api/auth/me",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "MyStockAPI.Controllers.ProductsController",
     "Method": "GetProduct",
     "RelativePath": "api/Products/{id}",
@@ -212,6 +222,16 @@
         "IsRequired": true
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MyStockAPI.Controllers.ProjectsController",
+    "Method": "GetAll",
+    "RelativePath": "api/Projects/items",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import PageIntro from '../components/PageIntro';
 import ActionButtons from '../components/ActionButtons';
 import { useAuth } from '../context/AuthContext';
+import usePersistentState from '../hooks/usePersistentState';
 import { getSuppliers, deleteSupplier } from '../services/api';
 
 const PAGE_SIZE = 15;
@@ -11,7 +12,7 @@ export default function SuppliersPage() {
   const navigate = useNavigate();
   const { canEdit } = useAuth();
   const [allRows, setAllRows] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = usePersistentState("suppliers.search", "");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -70,6 +71,7 @@ export default function SuppliersPage() {
                 placeholder="Search suppliers…"
                 value={search}
                 onChange={e => { setSearch(e.target.value); setPage(1); }}
+                style={search ? { borderColor: '#dc2626', color: '#dc2626', fontWeight: 'bold' } : undefined}
               />
               {search && (
                 <span

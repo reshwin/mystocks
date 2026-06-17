@@ -36,6 +36,18 @@
         }
       }
     },
+    "/api/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/auth/logout": {
       "post": {
         "tags": [
@@ -355,6 +367,18 @@
               "format": "int32"
             }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Projects/items": {
+      "get": {
+        "tags": [
+          "Projects"
         ],
         "responses": {
           "200": {
@@ -914,6 +938,9 @@
           "password": {
             "type": "string",
             "nullable": true
+          },
+          "rememberMe": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false

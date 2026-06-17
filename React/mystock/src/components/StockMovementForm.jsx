@@ -24,10 +24,48 @@ const defaultForm = {
   m_notes:      '',
 };
 
-export default function StockMovementForm({ products, onSubmit, onCancel }) {
+export default function StockMovementForm({ products, projects = [], initialProduct, onSubmit, onCancel }) {
   const [form, setForm] = useState(defaultForm);
 
-  const productOptions = products.map(p => ({ value: p.m_id, label: capitalize(p.m_name) }));
+  // Product Type / Sub-type act as cascading filters to narrow the Component list.
+  const [productType, setProductType] = useState('');
+  const [productSubType, setProductSubType] = useState('');
+
+  // Pre-fill Type / Sub-type / Component when opened for a specific component.
+  useEffect(() => {
+    if (initialProduct) {
+      setProductType(initialProduct.m_type ?? '');
+      setProductSubType(initialProduct.m_type_sub ?? '');
+      setForm(prev => ({ ...prev, m_product_id: initialProduct.m_id ?? '' }));
+    }
+  }, [initialProduct]);
+
+  const types = [...new Set(products.map(p => p.m_type).filter(Boolean))].sort();
+  const subTypes = [...new Set(
+    products
+      .filter(p => !productType || p.m_type === productType)
+      .map(p => p.m_type_sub)
+      .filter(Boolean)
+  )].sort();
+
+  const filteredProducts = products.filter(p =>
+    (!productType || p.m_type === productType) &&
+    (!productSubType || p.m_type_sub === productSubType)
+  );
+
+  const productOptions = filteredProducts.map(p => ({ value: p.m_id, label: capitalize(p.m_name) }));
+  const selectedProductOption = productOptions.find(o => o.value === form.m_product_id) ?? null;
+
+  const handleProductTypeChange = (e) => {
+    setProductType(e.target.value);
+    setProductSubType('');
+    setForm(prev => ({ ...prev, m_product_id: '' }));
+  };
+
+  const handleProductSubTypeChange = (e) => {
+    setProductSubType(e.target.value);
+    setForm(prev => ({ ...prev, m_product_id: '' }));
+  };
 
   const handleTypeChange = (type) => {
     const dir = directionForType[type];
@@ -59,10 +97,42 @@ export default function StockMovementForm({ products, onSubmit, onCancel }) {
   return (
     <form onSubmit={handleSubmit} style={{ padding: '20px', maxWidth: 520 }}>
 
+      <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
+        <div className="field" style={{ flex: 1 }}>
+          <label>Type <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(filter)</span></label>
+          <select
+            value={productType}
+            onChange={handleProductTypeChange}
+            className="field-select"
+          >
+            <option value="">All types</option>
+            {types.map(t => (
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="field" style={{ flex: 1 }}>
+          <label>Sub-type <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(filter)</span></label>
+          <select
+            value={productSubType}
+            onChange={handleProductSubTypeChange}
+            className="field-select"
+            disabled={subTypes.length === 0}
+          >
+            <option value="">All sub-types</option>
+            {subTypes.map(st => (
+              <option key={st} value={st}>{st}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <div className="field" style={{ marginBottom: 14 }}>
         <label>Component</label>
         <Select
           options={productOptions}
+          value={selectedProductOption}
           onChange={opt => setForm(prev => ({ ...prev, m_product_id: opt?.value ?? '' }))}
           placeholder="Select component…"
           isClearable
@@ -131,13 +201,17 @@ export default function StockMovementForm({ products, onSubmit, onCancel }) {
 
       <div className="field" style={{ marginBottom: 14 }}>
         <label>Project <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>(optional)</span></label>
-        <input
-          type="text"
+        <select
           name="m_project"
           value={form.m_project}
           onChange={handleChange}
-          placeholder="Project name…"
-        />
+          className="field-select"
+        >
+          <option value="">— None —</option>
+          {projects.map(p => (
+            <option key={p.id} value={p.name}>{capitalize(p.name)}</option>
+          ))}
+        </select>
       </div>
 
       <div className="field" style={{ marginBottom: 20 }}>
